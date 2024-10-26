@@ -1,6 +1,8 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../database/config.database.js";
 
+import SubCategoryProduct from "../subCategoryProduct/subCategoryProduct.entity.js";
+
 class CategoryProduct extends Model {}
 
 CategoryProduct.init(
@@ -22,4 +24,7 @@ CategoryProduct.init(
   }
 );
 
+// CategoryProduct.belongsToMany(SubCategoryProduct,{foreignKey:'categoryId'})
+// Define the relationship (association) in the same file
+CategoryProduct.hasMany(SubCategoryProduct, { foreignKey: 'categoryId', as: 'subCategories' });
 export default CategoryProduct;

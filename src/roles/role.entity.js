@@ -12,7 +12,7 @@ Role.init({
   name: {
     type: DataTypes.STRING,
     allowNull: false,
-  },
+  }
 }, {
   sequelize, // Pass the sequelize instance
   modelName: 'Role', // Name of the model

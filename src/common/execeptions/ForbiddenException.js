@@ -1,10 +1,7 @@
-// exceptions/ForbiddenException.js
-
-import HttpException from "./httpExceptions";
-
+import HttpException from "./HttpExceptions.js";
 
 class ForbiddenException extends HttpException {
-  constructor(message = 'Forbidden', data = null) {
+  constructor(message = "Forbidden", data = null) {
     super(message, 403, data);
   }
 }

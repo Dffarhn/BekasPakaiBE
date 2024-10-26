@@ -1,46 +1,178 @@
-import AppDataSource from "../database/config.database.js";
-import { User } from "../entities/User.js";
+import User from "../user/user.entity.js"; // Sequelize model
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { Op, Sequelize } from "sequelize";
+import BadRequestException from "../common/execeptions/BadRequestExecption.js";
+import dotenv from "dotenv";
+import verifyGoogleIdToken from "../common/utils/googleLogin.js";
+import { generateOTP, storeOTP, validateOTP } from "../common/services/OTPService.js";
+import emailService from "../common/services/emailService.js";
+
+dotenv.config();
 
 class AuthService {
   constructor() {
-    this.userRepository = AppDataSource.getRepository(User);
+    this.userRepository = User;
+  }
+
+  // Helper method to generate tokens
+  generateTokens(user) {
+    const accessToken = jwt.sign(
+      { id: user.id, email: user.email, role: user.roleId },
+      process.env.JWT_ACCESS_TOKEN,
+      { expiresIn: "1h" } // Short-lived access token
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user.id, email: user.email, role: user.roleId },
+      process.env.JWT_REFRESH_TOKEN,
+      { expiresIn: "7d" } // Long-lived refresh token
+    );
+
+    return { accessToken, refreshToken };
   }
 
   async register(userData) {
+    // Start a transaction
+    const transaction = await this.userRepository.sequelize.transaction();
     try {
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
-      const newUser = this.userRepository.create({
-        ...userData,
-        password: hashedPassword,
+      const existingUser = await this.userRepository.findOne({
+        where: { [Sequelize.Op.or]: [{ email: userData.email }] },
+        transaction, // Use the transaction
       });
-      return await this.userRepository.save(newUser);
+
+      if (existingUser) {
+        throw new BadRequestException("Email atau nomor handphone sudah terdaftar");
+      }
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+      // Generate an OTP
+      const otp = generateOTP();
+
+      // Create new user
+      const newUser = await this.userRepository.create(
+        {
+          ...userData,
+          password: hashedPassword,
+        },
+        { transaction } // Use the transaction
+      );
+
+      // Store the OTP associated with the user ID
+      storeOTP(newUser.id, otp); // Ensure this function can work within a transaction
+
+      // Send the OTP to the user's email
+      await emailService.sendConfirmationEmail(userData.email, newUser.username, otp);
+
+      // Generate tokens
+      const { accessToken, refreshToken } = this.generateTokens(newUser);
+
+      // Commit the transaction
+      await transaction.commit();
+
+      // Return the new user and the tokens
+      return {
+        access_token: accessToken, // Access token
+        refresh_token: refreshToken, // Refresh token
+      };
     } catch (error) {
-      throw new Error("Gagal melakukan registrasi");
+      // Rollback the transaction in case of an error
+      await transaction.rollback();
+      throw error; // Re-throw the error for further handling
     }
   }
 
-  async login(email, password) {
-    try {
-      const user = await this.userRepository.findOne({ where: { email } });
-      if (!user) {
-        return { success: false };
-      }
+  async login(userData) {
+    const { email, password } = userData;
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        return { success: false };
-      }
-
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-      });
-
-      return { success: true, token };
-    } catch (error) {
-      throw new Error("Gagal melakukan login");
+    // Find user by email
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      return { success: false, message: "User not found" };
     }
+
+    // Validate password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return { success: false, message: "Invalid credentials" };
+    }
+
+    // Generate tokens
+    const { accessToken, refreshToken } = this.generateTokens(user);
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
+  }
+
+  // Login with Google OAuth
+  async authViaGoogle(idToken) {
+    const payload = await verifyGoogleIdToken(idToken);
+    const { sub: googleId, email, name } = payload;
+
+    // Check if the user already exists
+    let user = await this.userRepository.findOne({ where: { googleId } });
+
+    if (!user) {
+      // Create new user if it doesn't exist
+      user = await this.userRepository.create({
+        email,
+        username: name,
+        googleId,
+        isVerified: true,
+      });
+    }
+
+    // Generate tokens
+    const { accessToken, refreshToken } = this.generateTokens(user);
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
+  }
+
+  // Refresh the access token using the refresh token
+  async refreshToken(refreshToken) {
+    try {
+      // Verify the refresh token
+      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN);
+
+      // Find the user based on the token's payload
+      const user = await this.userRepository.findByPk(decoded.id);
+      if (!user) {
+        throw new BadRequestException("Invalid refresh token");
+      }
+
+      // Generate a new access token
+      const accessToken = jwt.sign({ id: user.id, email: user.email, role: user.roleId }, process.env.JWT_ACCESS_TOKEN, { expiresIn: "1h" });
+
+      return { access_token: accessToken };
+    } catch (error) {
+      throw new BadRequestException("Invalid refresh token");
+    }
+  }
+
+  async verifyOTP(userId, inputOtp) {
+    const isValid = validateOTP(userId, inputOtp); // Validate the OTP using the utility function
+
+    if (!isValid) {
+      throw new BadRequestException("Invalid or expired OTP");
+    }
+
+    // If valid, you can proceed to verify the user or return a success message
+    // Here you might want to mark the user's email as verified in the database if applicable.
+    const user = await this.userRepository.findByPk(userId);
+
+    if (user) {
+      user.isVerified = true; // Update user's verification status
+      await user.save(); // Save the changes
+    }
+
+    return { message: "Email verified successfully!" };
   }
 }
 

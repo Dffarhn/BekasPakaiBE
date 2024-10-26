@@ -4,6 +4,11 @@ import sequelize from "../database/config.database.js"; // Adjust the path to yo
 import Role from "../roles/role.entity.js";
 import AuthPenjual from "../auth/authPenjual.entity.js";
 
+import {config} from "dotenv"
+
+config()
+
+
 class User extends Model {}
 
 User.init(
@@ -18,18 +23,23 @@ User.init(
       allowNull: false,
     },
     email: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(50),
       allowNull: false,
       unique: true,
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
+    },
+    googleId:{
+      type:DataTypes.STRING,
+      allowNull:true
     },
     noHandphone: {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    
     tanggalLahir: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -42,7 +52,6 @@ User.init(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-
     roleId: {
       // Foreign key to Role
       type: DataTypes.UUID,
@@ -51,6 +60,7 @@ User.init(
         model: Role, // The model to refer
         key: "id", // The key to refer in the Role model
       },
+      defaultValue:process.env.ROLE_BUYER
     },
 
     authPenjualId: {

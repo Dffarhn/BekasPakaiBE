@@ -1,6 +1,6 @@
 import { DataTypes, Model } from "sequelize";
-import Product from "../product/product.entity";
-import User from "../user/user.entity";
+import Product from "../product/product.entity.js";
+import User from "../user/user.entity.js";
 import sequelize from "../database/config.database.js"; // Adjust the path to your Sequelize instance
 
 class UlasanProduct extends Model {}
@@ -19,11 +19,11 @@ UlasanProduct.init(
     },
 
     rating: {
-      type: DataTypes.ENUM,
+      type: DataTypes.ENUM("1","2","3","4","5"),
       allowNull: false,
     },
     pictures: {
-      type: DataTypes.ARRAY,
+      type: DataTypes.JSON,
       allowNull: true,
     },
 

@@ -3,6 +3,7 @@ import sequelize from "../database/config.database.js"; // Adjust the path to yo
 import JenisProduct from "../jenisProducts/jenisProduct.entity.js";
 import CategoryProduct from "../categoryProducts/categoryProduct.entity.js";
 import User from "../user/user.entity.js";
+import SubCategoryProduct from "../subCategoryProduct/subCategoryProduct.entity.js";
 class Product extends Model {}
 
 Product.init(
@@ -17,19 +18,18 @@ Product.init(
       allowNull: false,
     },
     picture: {
-      type: DataTypes.ARRAY,
+      type: DataTypes.JSON,
       allowNull: false,
     },
 
     condition: {
-      type: DataTypes.ENUM,
+      type: DataTypes.ENUM("Baru", "Bekas"),
       allowNull: false,
     },
 
     garansi: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false,
     },
 
     description: {
@@ -40,6 +40,11 @@ Product.init(
     price: {
       type: DataTypes.FLOAT,
       allowNull: false,
+    },
+
+    discount:{
+      type:DataTypes.FLOAT,
+      allowNull:true
     },
 
     stock: {
@@ -80,7 +85,7 @@ Product.init(
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: CategoryProduct,
+        model: SubCategoryProduct,
         key: "id",
       },
     },
@@ -97,6 +102,7 @@ Product.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
+      unique:true
     },
   },
   {
@@ -105,5 +111,9 @@ Product.init(
     tableName: "Product",
   }
 );
+
+Product.belongsTo(JenisProduct,{foreignKey:'jenisProductId'})
+Product.belongsTo(SubCategoryProduct,{foreignKey:'categoryProductId'})
+Product.belongsTo(User,{foreignKey:'penjualId',as:'penjual'})
 
 export default Product;
