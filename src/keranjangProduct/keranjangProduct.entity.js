@@ -1,7 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../database/config.database.js"; // Adjust the path to your
 import Product from "../product/product.entity.js";
-import User from "../user/user.entity";
+import User from "../user/user.entity.js";
 
 class KeranjangProduct extends Model {}
 
@@ -12,34 +12,16 @@ KeranjangProduct.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    productId: {
-      type: DataTypes.UUID,
-      references: {
-        model: Product,
-        key: "id",
-      },
-    },
-    buyerId: {
-      type: DataTypes.UUID,
-      references: {
-        model: User,
-        key: "id",
-      },
-    },
-    jumlahBarang: {
-      type: DataTypes.BIGINT,
-      allowNull: false,
-    },
   },
   {
     sequelize,
     modelName: "KeranjangProduct",
-    tableName: "KeranjangProduct",
+    tableName: "keranjang_product",
   }
 );
 
-KeranjangProduct.belongsTo(User, { foreignKey: "id" });
+// KeranjangProduct.belongsTo(User, { foreignKey: { name: "userId" }, onDelete: "cascade", onUpdate: "cascade" });
 
-KeranjangProduct.belongsTo(Product, { foreignKey: "id" });
+// KeranjangProduct.belongsTo(Product, { foreignKey: "productId", onDelete: "cascade", onUpdate: "cascade" });
 
 export default KeranjangProduct;

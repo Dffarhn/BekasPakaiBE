@@ -15,25 +15,14 @@ SubCategoryProduct.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    categoryId: {
-        type: DataTypes.UUID,      // Foreign key referencing CategoryProduct
-        allowNull: false,
-        references: {
-          model: "CategoryProduct",  // Name of the CategoryProduct table
-          key: 'id',                 // The id in CategoryProduct
-        },
-      },
-  
   },
   {
     sequelize,
     modelName: "SubCategoryProduct",
-    tableName: "SubCategoryProduct",
+    tableName: "sub_category_product",
   }
 );
 
-// SubCategoryProduct.belongsTo(CategoryProduct, {foreignKey : 'categoryId'})
-
-
+// SubCategoryProduct.belongsTo(CategoryProduct, { foreignKey: "categoryId", as: "category", onDelete: "cascade", onUpdate: "cascade" });
 
 export default SubCategoryProduct;

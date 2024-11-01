@@ -1,9 +1,10 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../database/config.database.js"; // Adjust the path to your
 import JenisProduct from "../jenisProducts/jenisProduct.entity.js";
-import CategoryProduct from "../categoryProducts/categoryProduct.entity.js";
 import User from "../user/user.entity.js";
 import SubCategoryProduct from "../subCategoryProduct/subCategoryProduct.entity.js";
+import UlasanProduct from "../ulasanProduct/ulasanProduct.entity.js";
+import KeranjangProduct  from "../keranjangProduct/keranjangProduct.entity.js";
 class Product extends Model {}
 
 Product.init(
@@ -42,14 +43,14 @@ Product.init(
       allowNull: false,
     },
 
-    discount:{
-      type:DataTypes.FLOAT,
-      allowNull:true
+    discount: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
     },
 
-    stock: {
-      type: DataTypes.INTEGER,
-      defaultValue: 1,
+    isAvailable: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
     },
 
     weight: {
@@ -71,49 +72,18 @@ Product.init(
       type: DataTypes.INTEGER,
       defaultValue: 1,
     },
-
-    jenisProductId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: JenisProduct,
-        key: "id",
-      },
-    },
-
-    categoryProductId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: SubCategoryProduct,
-        key: "id",
-      },
-    },
-    penjualId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: User,
-        key: "id",
-      },
-    },
-
-    ulasanId: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      allowNull: false,
-      unique:true
-    },
   },
   {
     sequelize,
     modelName: "Product",
-    tableName: "Product",
+    tableName: "product",
   }
 );
 
-Product.belongsTo(JenisProduct,{foreignKey:'jenisProductId'})
-Product.belongsTo(SubCategoryProduct,{foreignKey:'categoryProductId'})
-Product.belongsTo(User,{foreignKey:'penjualId',as:'penjual'})
+// Product.belongsTo(JenisProduct, { foreignKey: "jenisProductId", onDelete: "cascade", onUpdate: "cascade" });
+// Product.belongsTo(SubCategoryProduct, { foreignKey: "categoryProductId", onDelete: "cascade", onUpdate: "cascade" });
+// Product.belongsTo(User, { foreignKey: "penjualId", as: "penjual", onDelete: "CASCADE", onUpdate: "CASCADE" });
+// Product.hasMany(UlasanProduct);
+// Product.hasMany(KeranjangProduct);
 
 export default Product;

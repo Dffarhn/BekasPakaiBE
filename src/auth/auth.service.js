@@ -37,7 +37,9 @@ class AuthService {
     const transaction = await this.userRepository.sequelize.transaction();
     try {
       const existingUser = await this.userRepository.findOne({
-        where: { [Sequelize.Op.or]: [{ email: userData.email }] },
+        where: {
+          [Sequelize.Op.or]: [{ email: userData.email }, { username: userData.username }],
+        },
         transaction, // Use the transaction
       });
 

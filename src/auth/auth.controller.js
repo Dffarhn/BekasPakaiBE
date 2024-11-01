@@ -5,6 +5,7 @@ import authService from "./auth.service.js";
 class AuthController {
   async register(req, res, next) {
     try {
+      console.log("masuk")
       const { access_token, refresh_token } = await authService.register(req.body);
 
       // Set the refresh token in an HTTP-only cookie
@@ -49,6 +50,8 @@ class AuthController {
 
   async authViaGoogle(req, res, next) {
     try {
+
+      const {id,username,email} = req.body
       const { access_token, refresh_token } = await authService.authViaGoogle(req.body.idToken);
 
       // Set the refresh token in an HTTP-only cookie

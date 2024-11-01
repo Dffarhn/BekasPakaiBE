@@ -1,13 +1,10 @@
 // models/User.js
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../database/config.database.js"; // Adjust the path to your Sequelize instance
-import Role from "../roles/role.entity.js";
-import AuthPenjual from "../auth/authPenjual.entity.js";
 
-import {config} from "dotenv"
+import { config } from "dotenv";
 
-config()
-
+config();
 
 class User extends Model {}
 
@@ -31,15 +28,14 @@ User.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    googleId:{
-      type:DataTypes.STRING,
-      allowNull:true
+    googleId: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     noHandphone: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    
     tanggalLahir: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -52,33 +48,37 @@ User.init(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    roleId: {
-      // Foreign key to Role
-      type: DataTypes.UUID,
-      allowNull: true,
-      references: {
-        model: Role, // The model to refer
-        key: "id", // The key to refer in the Role model
-      },
-      defaultValue:process.env.ROLE_BUYER
-    },
-
-    authPenjualId: {
-      type: DataTypes.UUID,
-      allowNull: true,
-      references: {
-        model: AuthPenjual,
-        key: "id",
-      },
-    },
   },
   {
     sequelize, // Pass the Sequelize instance here
     modelName: "User",
-    tableName: "usersBekasKu",
+    tableName: "user_bekasku",
   }
 );
 
-User.belongsTo(Role, { foreignKey: "roleId" }); // A user belongs to a role
+// User.hasMany(Product);
 
+// User.belongsTo(Role, {
+//   foreignKey: {
+//     allowNull: false,
+//     name: "roleId",
+//     defaultValue: process.env.ROLE_CUSTOMER,
+//   },
+//   as: "role",
+//   onDelete: "CASCADE",
+//   onUpdate: "CASCADE",
+// }); // A user belongs to a role
+
+// User.belongsTo(AuthPenjual, {
+//   foreignKey: {
+//     allowNull: true,
+//     name: "AuthPenjualId",
+//   },
+// });
+
+// User.hasMany(ChatRoom);
+// User.hasMany(KeranjangProduct);
+// User.hasMany(Chat)
+// User.hasMany(OfferedProduct);
+// User.hasMany(OrderedProduct);
 export default User;

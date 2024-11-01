@@ -1,4 +1,3 @@
-import { where } from "sequelize";
 import SubCategoryProduct from "./subCategoryProduct.entity.js";
 
 class SubCategoryProductService {

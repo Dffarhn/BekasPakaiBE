@@ -1,22 +1,24 @@
 import Product from "./product.entity.js";
+import { deleteFilesPicture, FBdeleteFilesPicture, FBuploadFilesPicture } from "../common/services/uploadImageService.js";
+import UlasanProduct from "../ulasanProduct/ulasanProduct.entity.js";
 import JenisProduct from "../jenisProducts/jenisProduct.entity.js";
-import CategoryProduct from "../categoryProducts/categoryProduct.entity.js";
 import User from "../user/user.entity.js";
-import NotFoundException from "../common/execeptions/NotFoundException.js";
 import SubCategoryProduct from "../subCategoryProduct/subCategoryProduct.entity.js";
-import { deleteFilesPicture } from "../common/services/uploadImageService.js";
+import NotFoundException from "../common/execeptions/NotFoundException.js";
+import CategoryProduct from "../categoryProducts/categoryProduct.entity.js";
+import { convertImagesToWebP } from "../common/services/convertToWEBPService.js";
 
 class ProductService {
   constructor() {
     this.productRepository = Product;
+    this.ulasanProductRepository = UlasanProduct;
   }
 
   // Get all products with optional filters and associations
   async getProducts(options = {}) {
     try {
-      console.log("Masuk service");
       const data = await this.productRepository.findAll({
-        attributes: ["id", "name", "picture", "condition", "price"],
+        attributes: ["id", "name", "picture", "condition", "price", "discount"],
         include: [
           { model: JenisProduct, attributes: ["id", "name"] }, // Assuming the alias is 'jenisProduct'
           { model: SubCategoryProduct, attributes: ["id", "name"] },
@@ -33,45 +35,75 @@ class ProductService {
   }
 
   // Get product by id
+  // Get product by id
   async getProductById(id) {
     const product = await this.productRepository.findByPk(id, {
-      attributes: ["id", "name", "picture", "condition", "garansi", "description", "price", "stock", "weight", "volumePanjang", "volumeLebar", "volumeTinggi"],
+      attributes: ["id", "name", "picture", "condition", "garansi", "description", "price", "isAvailable", "discount", "weight", "volumePanjang", "volumeLebar", "volumeTinggi"],
       include: [
-        { model: JenisProduct, attributes: ["id", "name"] }, // Assuming the alias is 'jenisProduct'
+        { model: JenisProduct, attributes: ["id", "name"] },
         { model: SubCategoryProduct, attributes: ["id", "name"] },
-        { model: User, as: "penjual", attributes: ["id", "username"] }, // Assuming 'penjual' is the alias for the User model
+        { model: User, as: "penjual", attributes: ["id", "username"] },
+        { model: UlasanProduct, include: [{ model: User, attributes: ["username"] }] }, // Ensure alias matches the defined relationship
       ],
     });
+
     if (!product) {
       throw new NotFoundException("Product not found");
     }
-    return product;
+
+    return product; // Return the product object with associated ulasan
   }
 
   // Create a new product
-  async createProduct(productData) {
+  async createProduct(productData, files) {
+    let uploadedImageUrls = [];
     try {
+
+      // Step 2: After validation passes, upload images
+      if (files) {
+        // Validate that all files are images
+        const isValidImage = files.every((file) => file.mimetype.startsWith("image/"));
+        if (!isValidImage) throw new Error("Invalid file type. Only images are allowed.");
+        // Generate unique file names and prepare for conversion/upload
+        const processedFiles = files.map((file) => ({
+          name: `${file.originalname}_${Date.now()}`,
+          size: file.size,
+          mimetype: file.mimetype,
+          buffer: file.buffer,
+          originalname: file.originalname, // Maintain original name for conversion
+        }));
+
+        // Convert files to .webp format
+        const convertedFiles = await convertImagesToWebP(processedFiles);
+
+        // Upload the converted files
+        uploadedImageUrls = await FBuploadFilesPicture(convertedFiles);
+      }
+
+      productData.picture = uploadedImageUrls;
       // console.log(productData);
       return await this.productRepository.create(productData);
     } catch (error) {
+      if (uploadedImageUrls.length > 0) {
+        await FBdeleteFilesPicture(uploadedImageUrls);
+      }
+
       console.log(error.message);
     }
   }
 
   // Update a product by id
   async updateProduct(id, productData) {
-    try {
-      await this.productRepository.update(productData, { where: { id } });
-      return await this.productRepository.findByPk(id, {
-        include: [
-          { model: JenisProduct, as: "jenisProduct" },
-          { model: CategoryProduct, as: "categoryProduct" },
-          { model: User, as: "penjual" },
-        ],
-      });
-    } catch (error) {
-      throw new Error("Failed to update product");
-    }
+    console.log(productData);
+
+    await this.productRepository.update(productData, { where: { id } });
+    return await this.productRepository.findByPk(id, {
+      include: [
+        { model: JenisProduct, attributes: ["id", "name"] },
+        { model: SubCategoryProduct, attributes: ["id", "name"] },
+        { model: User, as: "penjual", attributes: ["id", "username"] },
+      ],
+    });
   }
 
   // Delete a product by id

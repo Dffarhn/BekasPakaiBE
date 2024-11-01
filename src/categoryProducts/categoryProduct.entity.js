@@ -20,11 +20,11 @@ CategoryProduct.init(
   {
     sequelize,
     modelName: "CategoryProduct",
-    tableName: "CategoryProduct",
+    tableName: "category_product",
   }
 );
 
 // CategoryProduct.belongsToMany(SubCategoryProduct,{foreignKey:'categoryId'})
 // Define the relationship (association) in the same file
-CategoryProduct.hasMany(SubCategoryProduct, { foreignKey: 'categoryId', as: 'subCategories' });
+// CategoryProduct.hasMany(SubCategoryProduct);
 export default CategoryProduct;

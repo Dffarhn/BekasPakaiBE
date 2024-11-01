@@ -17,7 +17,7 @@ JenisProduct.init({
 },{
     sequelize,
     modelName:"JenisProduct",
-    tableName:"JenisProduct"
+    tableName:"jenis_product"
 })
 
 export default JenisProduct

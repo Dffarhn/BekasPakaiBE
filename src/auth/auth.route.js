@@ -5,15 +5,15 @@ import authController from "./auth.controller.js";
 import { loginValidationRules } from "./dto/login.dto.js";
 import { allowedFields } from "../common/middleware/allowedField.middleware.js";
 import { authenticateJWT } from "../common/middleware/jwt.middleware.js";
-import { ROLE_BUYER, ROLE_SELLER } from "../roles/role.enum.js";
+import { ROLE_CUSTOMER, ROLE_TOKO } from "../roles/role.enum.js";
 
 const authRouter = express.Router();
 
-authRouter.post('/register',allowedFields(['email','password','username']),registerValidationRules,handleValidationErrors,authController.register)
-authRouter.post('/login',allowedFields(['email','password']),loginValidationRules,handleValidationErrors,authController.login)
-authRouter.post('/google-login',allowedFields(['googleId']),authController.authViaGoogle)
-authRouter.post('/refresh-token', authController.refreshToken); // Route for refreshing access token
-authRouter.post('/logout', authController.logout); // Route for logging out
-authRouter.post('/verify-otp',authenticateJWT([ROLE_BUYER]) , authController.verifyOTP)
+authRouter.post("/register", allowedFields(["email", "password", "username"]), registerValidationRules, handleValidationErrors, authController.register);
+authRouter.post("/login", allowedFields(["email", "password"]), loginValidationRules, handleValidationErrors, authController.login);
+authRouter.post("/google-login", allowedFields(["googleId"]), authController.authViaGoogle);
+authRouter.post("/refresh-token", authController.refreshToken); // Route for refreshing access token
+authRouter.post("/logout", authController.logout); // Route for logging out
+authRouter.post("/verify-otp", authenticateJWT([ROLE_CUSTOMER]), authController.verifyOTP);
 
 export default authRouter;

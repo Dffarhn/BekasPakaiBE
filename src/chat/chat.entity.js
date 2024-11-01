@@ -2,37 +2,28 @@ import { DataTypes, Model } from "sequelize";
 import ChatRoom from "../ChatRooms/chatRoom.entity.js";
 import User from "../user/user.entity.js";
 import sequelize from "../database/config.database.js"; // Adjust the path to your Sequelize instance
-class Chat extends Model{}
+class Chat extends Model {}
 
-Chat.init({
-    id:{
-        type:DataTypes.UUID,
-        defaultValue:DataTypes.UUIDV4,
-        primaryKey:true
+Chat.init(
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
-    chatText:{
-        type:DataTypes.TEXT,
-        allowNull:false
+    chatText: {
+      type: DataTypes.TEXT,
+      allowNull: false,
     },
-    roomId:{
-        type:DataTypes.UUID,
-        references:{
-            model: ChatRoom,
-            key:'id'
-        }
-    },
-    senderId:{
-        type:DataTypes.UUID,
-        references:{
-            model: User,
-            key:"id"
-        }
-    }
-
-},{
+  },
+  {
     sequelize,
-    modelName:"Chat",
-    tableName:"Chat"
-})
+    modelName: "Chat",
+    tableName: "Chat",
+  }
+);
 
-export default Chat
+// Chat.belongsTo(ChatRoom, { foreignKey: { name: "roomId" }, onDelete: "cascade", onUpdate: "cascade" });
+// Chat.belongsTo(User, { foreignKey: { name: "senderId" }, onDelete: "cascade", onUpdate: "cascade" });
+
+export default Chat;

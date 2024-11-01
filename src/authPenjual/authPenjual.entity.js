@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../database/config.database.js"; // Adjust the path to your Sequelize instance
+import User from "../user/user.entity.js";
 class AuthPenjual extends Model {}
 
 AuthPenjual.init(
@@ -8,6 +9,10 @@ AuthPenjual.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
+    },
+    codeBank: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     namaRekening: {
       type: DataTypes.STRING,
@@ -33,8 +38,9 @@ AuthPenjual.init(
   {
     sequelize,
     modelName: "AuthPenjual",
-    tableName: "AuthPenjual",
+    tableName: "auth_penjual",
   }
 );
+// AuthPenjual.hasOne(User);
 
 export default AuthPenjual;

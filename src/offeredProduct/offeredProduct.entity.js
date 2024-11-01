@@ -12,20 +12,6 @@ OfferedProduct.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    productId: {
-      type: DataTypes.UUID,
-      references: {
-        model: Product,
-        key: "id",
-      },
-    },
-    buyerId: {
-      type: DataTypes.UUID,
-      references: {
-        model: User,
-        key: "id",
-      },
-    },
     priceOffer: {
       type: DataTypes.BIGINT,
       allowNull: false,
@@ -33,19 +19,18 @@ OfferedProduct.init(
 
     isAgree: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      allowNull:true,
     },
   },
   {
     sequelize,
     modelName: "OfferedProduct",
-    tableName: "OfferedProduct",
+    tableName: "offered_product",
   }
 );
 
-OfferedProduct.belongsTo(User, { foreignKey: "id" });
+// OfferedProduct.belongsTo(User, { foreignKey: { name: "buyerId" }, onDelete: "cascade", onUpdate: "cascade" });
 
-OfferedProduct.belongsTo(Product, { foreignKey: "id" });
-
+// OfferedProduct.belongsTo(Product, { foreignKey: "productId", onDelete: "cascade", onUpdate: "cascade" });
 
 export default OfferedProduct;

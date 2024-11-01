@@ -19,7 +19,7 @@ UlasanProduct.init(
     },
 
     rating: {
-      type: DataTypes.ENUM("1","2","3","4","5"),
+      type: DataTypes.ENUM("1", "2", "3", "4", "5"),
       allowNull: false,
     },
     pictures: {
@@ -27,38 +27,31 @@ UlasanProduct.init(
       allowNull: true,
     },
 
-    ulasanOwner: {
+    ulasan_owner: {
       type: DataTypes.TEXT,
       allowNull: true,
-    },
-
-    ulasanProductId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: Product,
-        key: "ulasanId",
-      },
-    },
-
-    userId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: User,
-        key: "id",
-      },
     },
   },
   {
     sequelize,
     modelName: "UlasanProduct",
-    tableName: "UlasanProduct",
+    tableName: "ulasan_product",
   }
 );
 
-UlasanProduct.belongsTo(Product, { foreignKey: "ulasanId" });
+// UlasanProduct.belongsTo(Product, {
+//   foreignKey: {
+//     name: "ulasanId",
+//   },
+//   onDelete:"cascade",
+//   onUpdate:"cascade"
+// });
 
-UlasanProduct.belongsTo(User, { foreignKey: "id" });
+// UlasanProduct.belongsTo(User, {
+//   foreignKey: {
+//     name: "reviewer",
+//   },
+//   onUpdate:'cascade'
+// });
 
 export default UlasanProduct;

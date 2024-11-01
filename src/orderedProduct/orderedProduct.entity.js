@@ -1,6 +1,6 @@
 import { DataTypes, Model } from "sequelize";
-import Product from "../product/product.entity";
-import User from "../user/user.entity";
+import Product from "../product/product.entity.js";
+import User from "../user/user.entity.js";
 import sequelize from "../database/config.database.js";
 
 class OrderedProduct extends Model {}
@@ -12,26 +12,6 @@ OrderedProduct.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    productId: {
-      type: DataTypes.UUID,
-      references: {
-        model: Product,
-        key: "id",
-      },
-    },
-    buyerId: {
-      type: DataTypes.UUID,
-      references: {
-        model: User,
-        key: "id",
-      },
-    },
-
-    jumlahBarang: {
-      type: DataTypes.BIGINT,
-      allowNull: false,
-    },
-
     price: {
       type: DataTypes.BIGINT,
       allowNull: false,
@@ -57,7 +37,14 @@ OrderedProduct.init(
   },
   {
     sequelize,
-    tableName: "OrderedProduct",
+    tableName: "ordered_product",
     modelName: "OrderedProduct",
   }
 );
+
+// OrderedProduct.belongsTo(User, { foreignKey: { name: "buyerId" }, onDelete: "cascade", onUpdate: "cascade" });
+
+// OrderedProduct.belongsTo(Product, { foreignKey: "productId", onDelete: "cascade", onUpdate: "cascade" });
+
+
+export default OrderedProduct

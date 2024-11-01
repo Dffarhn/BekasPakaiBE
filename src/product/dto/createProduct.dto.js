@@ -22,10 +22,7 @@ export const createProductValidator = [
   
   body('price')
     .isFloat({ gt: 0 }).withMessage('Price must be a positive number'),
-  
-  body('stock')
-    .isInt({ min: 0 }).withMessage('Stock must be an integer greater than or equal to 0'),
-  
+
   body('weight')
     .isInt({ gt: 0 }).withMessage('Weight must be a positive integer'),
   
@@ -36,7 +33,7 @@ export const createProductValidator = [
   body('volumeTinggi')
     .isInt({ gt: 0 }).withMessage('Volume Tinggi must be a positive integer'),
   
-  body('jenisProductId')
+  body('jenisId')
     .isUUID(4).withMessage('JenisProductId must be a valid UUID v4'),
   
   body('categoryProductId')

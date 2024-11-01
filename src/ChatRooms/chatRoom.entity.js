@@ -11,47 +11,27 @@ ChatRoom.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    sellerId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: User,
-        key: "id",
-      },
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    },
-    buyerId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: User,
-        key: "id",
-      },
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    },
   },
   {
     sequelize,
     modelName: "ChatRoom",
-    tableName: "ChatRoom",
+    tableName: "chat_room",
   }
 );
 
 // Define the associations with alias to avoid conflicts
-ChatRoom.belongsTo(User, {
-  foreignKey: "sellerId",
-  as: "seller",
-  onDelete: "cascade",
-  onUpdate: "cascade",
-});
+// ChatRoom.belongsTo(User, {
+//   foreignKey: "sellerId",
+//   as: "seller",
+//   onDelete: "cascade",
+//   onUpdate: "cascade",
+// });
 
-ChatRoom.belongsTo(User, {
-  foreignKey: "buyerId",
-  as: "buyer",
-  onDelete: "cascade",
-  onUpdate: "cascade",
-});
+// ChatRoom.belongsTo(User, {
+//   foreignKey: "buyerId",
+//   as: "buyer",
+//   onDelete: "cascade",
+//   onUpdate: "cascade",
+// });
 
 export default ChatRoom;

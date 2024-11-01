@@ -3,13 +3,12 @@ import ForbiddenException from "../execeptions/ForbiddenException.js";
 import UnauthorizedException from "../execeptions/UnauthorizedException.js";
 import { config } from "dotenv";
 
-const { verify } = pkg;
+const { verify, TokenExpiredError, JsonWebTokenError } = pkg;
 
-config()
+config();
 
 export function authenticateJWT(allowedRoles = []) {
   return (req, res, next) => {
-    // console.log(req)
     const token = req.headers['authorization']?.split(' ')[1];
 
     if (!token) {
@@ -18,12 +17,18 @@ export function authenticateJWT(allowedRoles = []) {
 
     verify(token, process.env.JWT_ACCESS_TOKEN, (err, user) => {
       if (err) {
-        return next(new ForbiddenException('Access denied. Token is not verified.'));
+        if (err instanceof TokenExpiredError) {
+          return next(new ForbiddenException('Access denied. Token has expired.'));
+        }
+        if (err instanceof JsonWebTokenError) {
+          return next(new ForbiddenException('Access denied. Token is not verified.'));
+        }
+        // Handle any other errors that may occur
+        return next(new ForbiddenException('Access denied. Invalid token.'));
       }
 
       // Check if the user's role is in the allowed roles array
       if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-        console.log("allowed")
         return next(new ForbiddenException('Access denied. You do not have the required role.'));
       }
 

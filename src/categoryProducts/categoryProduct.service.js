@@ -1,4 +1,3 @@
-import { where } from "sequelize";
 import SubCategoryProduct from "../subCategoryProduct/subCategoryProduct.entity.js";
 import CategoryProduct from "./categoryProduct.entity.js";
 
