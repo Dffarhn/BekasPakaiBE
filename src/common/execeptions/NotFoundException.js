@@ -1,5 +1,5 @@
 // exceptions/NotFoundException.js
-import HttpException from "./HttpExceptions.js";
+import HttpException from "./HttpException.js";
 
 class NotFoundException extends HttpException {
   constructor(message = "Not Found", data = null) {
