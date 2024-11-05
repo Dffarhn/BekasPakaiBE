@@ -9,8 +9,8 @@ import upload from "../common/utils/multerConfig.js";
 const productRouter = express.Router();
 
 // Rute-rute
-productRouter.get("/", authenticateJWT([ROLE_CUSTOMER, ROLE_TOKO, ROLE_ADMIN]), productController.getProducts);
-productRouter.get("/:id", authenticateJWT([ROLE_CUSTOMER, ROLE_TOKO, ROLE_ADMIN]), productController.getProductById);
+productRouter.get("/", productController.getProducts);
+productRouter.get("/:id", productController.getProductById);
 productRouter.post("/", authenticateJWT([ROLE_TOKO]), upload.array("files", 2), createProductValidator, handleValidationErrors, productController.createProduct);
 productRouter.patch("/edit/:id", authenticateJWT([ROLE_TOKO]), productController.updateProduct);
 productRouter.delete("/:id", authenticateJWT([ROLE_TOKO]), productController.deleteProduct);
