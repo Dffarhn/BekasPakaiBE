@@ -12,6 +12,11 @@ export async function convertImagesToWebP(files, quality = 80) {
   return Promise.all(
     files.map(async (file) => {
       try {
+        // Check if `originalname` exists and is valid
+        if (!file.originalname) {
+          throw new Error("File missing originalname");
+        }
+
         const webpBuffer = await sharp(file.buffer).webp({ quality }).toBuffer();
 
         return {
@@ -21,8 +26,8 @@ export async function convertImagesToWebP(files, quality = 80) {
           mimetype: "image/webp",
         };
       } catch (error) {
-        console.error(`Failed to convert ${file.originalname}:`, error);
-        throw new Error(`Error converting image ${file.originalname}`);
+        console.error(`Failed to convert ${file.originalname || 'unknown file'}:`, error);
+        throw new Error(`Error converting image ${file.originalname || 'unknown file'}`);
       }
     })
   );

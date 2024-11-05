@@ -56,7 +56,7 @@ class UserService {
         }
 
         // Upload the new profile picture
-        const profilePictureUpload = await FBuploadFilesPicture(files.profile_picture);
+        const profilePictureUpload = await FBuploadFilesPicture(files.profile_picture,"userProfile");
         updateData.profile_picture = profilePictureUpload[0];
         uploadedFiles.push(profilePictureUpload[0].key); // Track new file key for rollback
       }
@@ -69,7 +69,7 @@ class UserService {
         }
 
         // Upload the new banner profile picture
-        const bannerPictureUpload = await FBuploadFilesPicture(files.banner_profile_picture);
+        const bannerPictureUpload = await FBuploadFilesPicture(files.banner_profile_picture,"userBannerProfile");
         updateData.banner_profile_picture = bannerPictureUpload[0];
         uploadedFiles.push(bannerPictureUpload[0].key); // Track new file key for rollback
       }

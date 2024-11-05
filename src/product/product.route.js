@@ -10,6 +10,7 @@ const productRouter = express.Router();
 
 // Rute-rute
 productRouter.get("/", productController.getProducts);
+productRouter.get("/owner", authenticateJWT([ROLE_TOKO]), productController.getProductsOwner);
 productRouter.get("/:id", productController.getProductById);
 productRouter.post("/", authenticateJWT([ROLE_TOKO]), upload.array("files", 2), createProductValidator, handleValidationErrors, productController.createProduct);
 productRouter.patch("/edit/:id", authenticateJWT([ROLE_TOKO]), productController.updateProduct);

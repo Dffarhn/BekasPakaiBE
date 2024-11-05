@@ -10,8 +10,42 @@ class ProductController {
   // Fetch all products
   async getProducts(req, res, next) {
     try {
-      console.log("masuk");
-      const products = await ProductService.getProducts();
+      const { category, subcategory, tipe, limit, page, toko } = req.query;
+
+      // Pass the query parameters as options to the service
+      const products = await ProductService.getProducts({
+        category,
+        subcategory,
+        tipe,
+        limit,
+        page,
+        toko,
+      });
+
+      const response = new ResponseSuccess(HttpStatus.OK, "Successfully get products", {
+        products,
+      });
+
+      res.status(response.statusCode).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+  async getProductsOwner(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const { category, subcategory, tipe, limit, page } = req.query;
+
+      // Pass the query parameters as options to the service
+      const products = await ProductService.getProducts({
+        category,
+        subcategory,
+        tipe,
+        limit,
+        page,
+        userId,
+      });
+
       const response = new ResponseSuccess(HttpStatus.OK, "Successfully get products", {
         products,
       });

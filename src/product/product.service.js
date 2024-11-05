@@ -17,8 +17,20 @@ class ProductService {
   }
 
   // Get all products with optional filters and associations
+  // Get all products with optional filters and associations
   async getProducts(options = {}) {
     try {
+      const { category, subcategory, tipe, limit, page, toko } = options;
+
+      const whereClause = {
+        isAvailable: true,
+        // Apply filters using the `$` notation to reference the `name` fields in associated models
+        ...(category && { "$JenisProduct.name$": category }), // Filter by `JenisProduct.name`
+        ...(subcategory && { "$SubCategoryProduct.name$": subcategory }), // Filter by `SubCategoryProduct.name`
+        ...(tipe && { "$JenisProduct.name$": tipe }), // Filter by `JenisProduct.name` for type
+        ...(toko && { "$penjual.id$": toko }), // Filter by `JenisProduct.name` for type
+      };
+
       const data = await this.productRepository.findAll({
         attributes: ["id", "name", "picture", "condition", "price", "discount"],
         include: [
@@ -26,16 +38,16 @@ class ProductService {
           { model: SubCategoryProduct, attributes: ["id", "name"] },
           { model: User, as: "penjual", attributes: ["id", "username"] }, // Assuming 'penjual' is the alias for the User model
         ],
-        where: {
-          isAvailable: true,
-        },
-        ...options,
+        where: whereClause,
+        // Pagination options
+        limit: limit ? parseInt(limit) : 10, // Default to 10 if limit is not provided
+        offset: page && limit ? (parseInt(page) - 1) * parseInt(limit) : 0,
       });
-      console.log(data);
 
       return data;
     } catch (error) {
       console.log(error.message);
+      throw error;
     }
   }
 
@@ -76,36 +88,38 @@ class ProductService {
   async createProduct(productData, files) {
     let uploadedImageUrls = [];
     try {
-      // Step 2: After validation passes, upload images
+      console.log("Files received:", files);
+
       if (files) {
-        // Validate that all files are images
         const isValidImage = files.every((file) => file.mimetype.startsWith("image/"));
         if (!isValidImage) throw new Error("Invalid file type. Only images are allowed.");
-        // Generate unique file names and prepare for conversion/upload
+
         const processedFiles = files.map((file) => ({
-          name: `${file.originalname}_${Date.now()}`,
+          originalname: `${file.originalname}_${Date.now()}`,
           size: file.size,
           mimetype: file.mimetype,
           buffer: file.buffer,
-          originalname: file.originalname, // Maintain original name for conversion
         }));
 
-        // Convert files to .webp format
         const convertedFiles = await convertImagesToWebP(processedFiles);
+        console.log("Converted files:", convertedFiles);
 
-        // Upload the converted files
-        uploadedImageUrls = await FBuploadFilesPicture(convertedFiles);
+        uploadedImageUrls = await Promise.all(
+          convertedFiles.map(async (file) => {
+            const uploaded = await FBuploadFilesPicture([file], "product");
+            return uploaded[0];
+          })
+        );
       }
 
       productData.picture = uploadedImageUrls;
-      // console.log(productData);
       return await this.productRepository.create(productData);
     } catch (error) {
+      console.error("Failed to create product:", error.message);
       if (uploadedImageUrls.length > 0) {
-        await FBdeleteFilesPicture(uploadedImageUrls);
+        await FBdeleteFilesPicture(uploadedImageUrls.map((file) => file.key));
       }
-
-      console.log(error.message);
+      throw new Error("Failed to create product");
     }
   }
 

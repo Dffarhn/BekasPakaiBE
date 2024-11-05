@@ -21,7 +21,7 @@ export const createProductValidator = [
     .isString().withMessage('Description must be a string'),
   
   body('price')
-    .isFloat({ gt: 0 }).withMessage('Price must be a positive number'),
+    .isFloat({ gt: -1 }).withMessage('Price must be a positive number'),
 
   body('weight')
     .isInt({ gt: 0 }).withMessage('Weight must be a positive integer'),

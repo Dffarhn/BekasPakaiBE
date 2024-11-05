@@ -9,7 +9,7 @@ const api = new UTApi({
 });
 
 
-export async function FBuploadFilesPicture(files) {
+export async function FBuploadFilesPicture(files,saveAt) {
   if (!Array.isArray(files) || files.length === 0) {
     throw new Error("No files provided for upload");
   }
@@ -17,7 +17,7 @@ export async function FBuploadFilesPicture(files) {
   try {
     const uploadPromises = files.map(async (file) => {
       const { buffer, originalname } = file;
-      const firebaseFile = bucket.file(`uploads/${Date.now()}_${originalname}`); // Unique filename with timestamp
+      const firebaseFile = bucket.file(`${saveAt}/${Date.now()}_${originalname}`); // Unique filename with timestamp
 
       const stream = firebaseFile.createWriteStream({
         metadata: { contentType: file.mimetype },
