@@ -1,4 +1,5 @@
-import HttpException from "../execeptions/HttpExceptions.js";
+
+import HttpException from "../../common/execeptions/HttpExceptions.js";
 
 const errorHandler = (err, req, res, next) => {
   if (err instanceof HttpException) {
