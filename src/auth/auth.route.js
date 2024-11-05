@@ -11,9 +11,10 @@ const authRouter = express.Router();
 
 authRouter.post("/register", allowedFields(["email", "password", "username"]), registerValidationRules, handleValidationErrors, authController.register);
 authRouter.post("/login", allowedFields(["email", "password"]), loginValidationRules, handleValidationErrors, authController.login);
-authRouter.post("/google-login", allowedFields(["googleId"]), authController.authViaGoogle);
+authRouter.post("/google-login", allowedFields(["googleId","name","image","email"]), authController.authViaGoogle);
 authRouter.post("/refresh-token", authController.refreshToken); // Route for refreshing access token
 authRouter.post("/logout", authController.logout); // Route for logging out
 authRouter.post("/verify-otp", authenticateJWT([ROLE_CUSTOMER]), authController.verifyOTP);
+// authRouter.post("/send-otp", authenticateJWT([ROLE_CUSTOMER]), authController.sendOTP);
 
 export default authRouter;

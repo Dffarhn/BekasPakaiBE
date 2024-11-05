@@ -1,5 +1,7 @@
 import BadRequestException from "../common/execeptions/BadRequestExecption.js";
 import dotenv from "dotenv";
+import { cekOngkirRequestDTO } from "./dto/cekOngkirDto.js";
+import orderedProductService from "../orderedProduct/orderedProduct.service.js";
 
 dotenv.config();
 
@@ -9,6 +11,34 @@ class BiteShipService {
     this.BASEURLBITESHIP = process.env.BiteShipBaseURL;
   }
 
+  async cekOngkir(originPostalCode, destinationPostalCode, couriers, items) {
+    const shippingRequestDTO = cekOngkirRequestDTO(originPostalCode, destinationPostalCode, couriers, items);
+
+    const baseURL = `${this.BASEURLBITESHIP}/v1/rates/couriers`;
+
+    try {
+      // Fetch the data from the API
+      const response = await fetch(baseURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.accessToken}`, // Use your access token here
+        },
+        body: JSON.stringify(shippingRequestDTO), // Stringify the shipping request DTO
+      });
+
+      if (!response.ok) {
+        throw new BadRequestException(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      // Parse JSON response
+      const data = await response.json();
+      return data; // Return the API response data
+    } catch (error) {
+      console.error("Failed to check shipping cost:", error);
+      throw error; // Re-throw the error for handling elsewhere
+    }
+  }
   async showListKurir(courierCode = "") {
     const baseURL = `${this.BASEURLBITESHIP}/v1/couriers`;
 
@@ -18,7 +48,7 @@ class BiteShipService {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${this.accessToken}`, // Use your access token here
+          Authorization: `Bearer ${this.accessToken}`, // Use your access token her
         },
       });
 
@@ -92,6 +122,98 @@ class BiteShipService {
       };
     } catch (error) {
       console.error("Failed to fetch postal code:", error);
+      throw error;
+    }
+  }
+
+  async createShipment(shipmentDetails) {
+
+    // console.log(shipmentDetails)
+    const baseURL = `${this.BASEURLBITESHIP}/v1/draft_orders`;
+
+    try {
+      const response = await fetch(baseURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+        body: JSON.stringify(shipmentDetails),
+      });
+
+      if (!response.ok) {
+
+        console.log(response)
+        throw new BadRequestException(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(data)
+      return data;
+    } catch (error) {
+      console.error("Failed to create shipment:", error);
+      throw error;
+    }
+  }
+
+  async confirmOrder(id_shipment) {
+
+    // console.log(shipmentDetails)
+    const baseURL = `${this.BASEURLBITESHIP}/v1/draft_orders/${id_shipment}/confirm`;
+
+    try {
+      const response = await fetch(baseURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+
+        console.log(response)
+        throw new BadRequestException(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      await orderedProductService.updateOrderStatus(id_shipment,"Pengiriman")
+      // console.log(data)
+      return data;
+    } catch (error) {
+      console.error("Failed to create shipment:", error);
+      throw error;
+    }
+  }
+
+  async deleteOrder(id_shipment) {
+
+    // console.log(shipmentDetails)
+    const baseURL = `${this.BASEURLBITESHIP}/v1/draft_orders/${id_shipment}`;
+
+    try {
+      const response = await fetch(baseURL, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+
+        console.log(response)
+        throw new BadRequestException(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      await orderedProductService.updateOrderStatus(id_shipment,"Pembatalan")
+      // console.log(data)
+      return data;
+    } catch (error) {
+      console.error("Failed to create shipment:", error);
       throw error;
     }
   }

@@ -15,6 +15,18 @@ User.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
+    banner_profile_picture:{
+      type: DataTypes.JSON,
+      allowNull:true
+    },
+    profile_picture:{
+      type: DataTypes.JSON,
+      allowNull:true
+    },
+    name:{
+      type: DataTypes.STRING,
+      allowNull:true
+    },
     username: {
       type: DataTypes.STRING,
       allowNull: false,

@@ -61,22 +61,23 @@ class AuthPenjualService {
 
     const authPenjual = await this.userPenjualRepository.findOne({
       where: { id: existingUser.AuthPenjualId },
+      attributes:["id"],
       include: [{ model: KurirPenjual }],
     });
 
-    if (!authPenjual || !authPenjual.KurirPenjuals) {
-      return { message: "No courier data found for this user." };
-    }
+    // if (!authPenjual || !authPenjual.KurirPenjuals) {
+    //   return { message: "No courier data found for this user." };
+    // }
 
-    const kurirData = authPenjual.KurirPenjuals.map((kurir) => ({
-      kurirPenjualId: kurir.kurirPenjualId,
-      layananKurirId: kurir.layananKurirId,
-      layananKurirServiceId: kurir.layananKurirServiceId,
-      createdAt: kurir.createdAt,
-      updatedAt: kurir.updatedAt,
-    }));
+    // const kurirData = authPenjual.KurirPenjuals.map((kurir) => ({
+    //   kurirPenjualId: kurir.kurirPenjualId,
+    //   layananKurirId: kurir.layananKurirId,
+    //   layananKurirServiceId: kurir.layananKurirServiceId,
+    //   createdAt: kurir.createdAt,
+    //   updatedAt: kurir.updatedAt,
+    // }));
 
-    return { authPenjualId: authPenjual.id, kurirData };
+    return { authPenjual };
   }
 }
 

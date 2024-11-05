@@ -16,10 +16,8 @@ class XenditService {
     }
   }
 
-  async createQrPayment(orderData, basketItems = [], metadata = {}) {
+  async createQrPayment(orderData) {
     const url = `${this.BaseURL}/qr_codes`;
-
-    const qrPaymentData = createQRPaymentObject(orderData, basketItems, metadata);
 
     try {
       const response = await fetch(url, {
@@ -29,7 +27,7 @@ class XenditService {
           "api-version": "2022-07-31",
           Authorization: `Basic ${btoa(this.accessToken + ":")}`,
         },
-        body: JSON.stringify(qrPaymentData),
+        body: JSON.stringify(orderData),
       });
 
       if (!response.ok) {

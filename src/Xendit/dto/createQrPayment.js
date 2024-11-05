@@ -9,15 +9,14 @@ export const createQRPaymentObject = (orderData, basketItems = [], metadata = {}
     // Expiry set to 48 hours from now
 
     basket: basketItems.map((item) => ({
-      reference_id: item.reference_id,
+      reference_id: item.reference_id||"",
       name: item.name,
-      category: item.category,
+      category: item.category||'',
       currency: "IDR", // Default currency to IDR if not provided
       price: item.price,
-      quantity: item.quantity,
+      quantity: item.quantity||'',
       type: item.type || "PRODUCT", // Default type to PRODUCT if not provided
-      description: item.description,
-      sub_category: item.sub_category,
+      sub_category: item.sub_category||"",
     })),
 
     metadata: metadata, // Additional optional metadata

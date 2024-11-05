@@ -23,9 +23,7 @@ const port = process.env.PORT || 3001; // Fixed port assignment
 // Middleware
 app.use(compression());
 app.use(cors({
-  origin: "http://localhost:5500", // Allow your client app's origin
-  methods: ["GET", "POST"],
-  credentials: true,
+  origin: "*", // Allow your client app's origin
 }));
 app.use(json());
 app.use(urlencoded({ extended: true }));

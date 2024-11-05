@@ -92,13 +92,13 @@ class AuthService {
     // Find user by email
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
-      return { success: false, message: "User not found" };
+      throw new BadRequestException("Invalid User");
     }
 
     // Validate password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return { success: false, message: "Invalid credentials" };
+      throw new BadRequestException("Invalid User");
     }
 
     // Generate tokens
@@ -111,9 +111,8 @@ class AuthService {
   }
 
   // Login with Google OAuth
-  async authViaGoogle(idToken) {
-    const payload = await verifyGoogleIdToken(idToken);
-    const { sub: googleId, email, name } = payload;
+  async authViaGoogle(data) {
+    const { googleId, email, name, image } = data;
 
     // Check if the user already exists
     let user = await this.userRepository.findOne({ where: { googleId } });
@@ -123,6 +122,9 @@ class AuthService {
       user = await this.userRepository.create({
         email,
         username: name,
+        profile_picture: {
+          url: image,
+        },
         googleId,
         isVerified: true,
       });

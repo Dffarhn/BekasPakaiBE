@@ -16,22 +16,22 @@ class UserController {
     }
   }
 
-  async getUserById(req, res,next) {
+  async getUserById(req, res, next) {
     try {
-      const {id} = req.params
+      const { id } = req.params;
       const user = await userService.getUserById(id);
       if (!user) {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
       return user;
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
 
   async getUserProfile(req, res) {
     try {
-      const id = req.user.id
+      const id = req.user.id;
       const user = await userService.getUserById(id);
       if (!user) {
         throw new NotFoundException(`User with ID ${id} not found`);
@@ -55,10 +55,16 @@ class UserController {
   }
 
   async updateUser(req, res) {
+    const { id } = req.user;
+    const { body, files } = req;
+
     try {
-      const updatedUser = await userService.updateUser(req.params.id, req.body);
+      // Prepare the update data
+
+      const updatedUser = await userService.updateUser(id, body, files);
+
       if (updatedUser) {
-        res.json(updatedUser);
+        res.json({ message: "User updated successfully", user: updatedUser });
       } else {
         res.status(404).json({ message: "User not found" });
       }

@@ -25,7 +25,15 @@ OrderedProduct.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-
+    status: {
+      type: DataTypes.ENUM("Pending", "Pengiriman", "Berhasil", "Pengembalian", "Pembatalan"),
+      allowNull: false,
+      defaultValue: "Pending",
+    },
+    id_shipment:{
+      type:DataTypes.STRING,
+      allowNull:false
+    },
     receivedName: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -46,5 +54,4 @@ OrderedProduct.init(
 
 // OrderedProduct.belongsTo(Product, { foreignKey: "productId", onDelete: "cascade", onUpdate: "cascade" });
 
-
-export default OrderedProduct
+export default OrderedProduct;

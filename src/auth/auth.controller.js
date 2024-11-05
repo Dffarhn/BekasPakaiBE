@@ -1,11 +1,62 @@
+import BadRequestException from "../common/execeptions/BadRequestExecption.js";
+import { sendVerificationCodeTwillio, verifyUserOTPTwillio } from "../common/services/twilioService.js";
 import HttpStatus from "../common/utils/HttpStatus.js";
 import ResponseSuccess from "../common/utils/ResponseSuccess.js";
+import userService from "../user/user.service.js";
 import authService from "./auth.service.js";
 
 class AuthController {
+  // Method to send OTP to user's phone number
+  // async sendOTP(req, res, next) {
+  //   try {
+  //     const { phoneNumber } = req.body;
+  //     const userId = req.user.id; // Extract user ID from the token
+
+  //     // Validate phone number presence
+  //     if (!phoneNumber) {
+  //       throw new BadRequestException("Phone number is required");
+  //     }
+
+  //     // Update user's phone number in the database
+  //     await userService.updateUser(userId, {noHandphone: phoneNumber});
+
+  //     // Send OTP via Twilio
+  //     const verification = await sendVerificationCodeTwillio(phoneNumber);
+
+  //     const response = new ResponseSuccess(HttpStatus.OK, "OTP sent successfully", {
+  //       sid: verification.sid,
+  //     });
+
+  //     res.status(response.statusCode).json(response);
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+
+  // // Method to verify OTP
+  // async verifyOTP(req, res, next) {
+  //   try {
+  //     const userId = req.user.id; // User ID from access token
+  //     const { otp } = req.body; // OTP from request body
+
+
+  //     const user = await userService.getUserById(userId)
+
+  //     // Verify OTP
+  //     const isVerified = await verifyUserOTPTwillio(user.noHandphone, otp);
+
+  //     const response = new ResponseSuccess(HttpStatus.OK, "OTP verified successfully", {
+  //       verified: isVerified,
+  //     });
+
+  //     res.status(response.statusCode).json(response);
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
   async register(req, res, next) {
     try {
-      console.log("masuk")
+      console.log("masuk");
       const { access_token, refresh_token } = await authService.register(req.body);
 
       // Set the refresh token in an HTTP-only cookie
@@ -22,6 +73,7 @@ class AuthController {
 
       res.status(response.statusCode).json(response);
     } catch (error) {
+      console.log(error)
       next(error); // Handle errors (e.g., BadRequestException)
     }
   }
@@ -44,15 +96,14 @@ class AuthController {
 
       res.status(response.statusCode).json(response);
     } catch (error) {
+      console.log(error)
       next(error);
     }
   }
 
   async authViaGoogle(req, res, next) {
     try {
-
-      const {id,username,email} = req.body
-      const { access_token, refresh_token } = await authService.authViaGoogle(req.body.idToken);
+      const { access_token, refresh_token } = await authService.authViaGoogle(req.body);
 
       // Set the refresh token in an HTTP-only cookie
       res.cookie("refresh_token", refresh_token, {
@@ -113,8 +164,8 @@ class AuthController {
   // New method for OTP verification
   async verifyOTP(req, res, next) {
     try {
-      const userId = req.user.id
-      const {otp } = req.body; // Get userId and OTP from request body
+      const userId = req.user.id;
+      const { otp } = req.body; // Get userId and OTP from request body
 
       const result = await authService.verifyOTP(userId, otp); // Call the service to verify OTP
 

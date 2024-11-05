@@ -7,6 +7,8 @@ import SubCategoryProduct from "../subCategoryProduct/subCategoryProduct.entity.
 import NotFoundException from "../common/execeptions/NotFoundException.js";
 import CategoryProduct from "../categoryProducts/categoryProduct.entity.js";
 import { convertImagesToWebP } from "../common/services/convertToWEBPService.js";
+import AuthPenjual from "../authPenjual/authPenjual.entity.js";
+import KurirPenjual from "../kurirPenjual/kurirPenjual.entity.js";
 
 class ProductService {
   constructor() {
@@ -24,6 +26,9 @@ class ProductService {
           { model: SubCategoryProduct, attributes: ["id", "name"] },
           { model: User, as: "penjual", attributes: ["id", "username"] }, // Assuming 'penjual' is the alias for the User model
         ],
+        where: {
+          isAvailable: true,
+        },
         ...options,
       });
       console.log(data);
@@ -42,9 +47,22 @@ class ProductService {
       include: [
         { model: JenisProduct, attributes: ["id", "name"] },
         { model: SubCategoryProduct, attributes: ["id", "name"] },
-        { model: User, as: "penjual", attributes: ["id", "username"] },
+        {
+          model: User,
+          as: "penjual",
+          attributes: ["username"],
+          include: [
+            {
+              model: AuthPenjual,
+              attributes: ["alamat", "kodePos"],
+              include: [{ model: KurirPenjual, attributes: ["id", "layananKurirId", "layananKurirServiceId"] }],
+            },
+          ],
+        },
         { model: UlasanProduct, include: [{ model: User, attributes: ["username"] }] }, // Ensure alias matches the defined relationship
       ],
+      // raw: true,
+      nest: true, // This helps in getting nested results
     });
 
     if (!product) {
@@ -58,7 +76,6 @@ class ProductService {
   async createProduct(productData, files) {
     let uploadedImageUrls = [];
     try {
-
       // Step 2: After validation passes, upload images
       if (files) {
         // Validate that all files are images
