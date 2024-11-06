@@ -1,7 +1,9 @@
 import AuthPenjual from "../authPenjual/authPenjual.entity.js";
+import { convertImagesToWebP } from "../common/services/convertToWEBPService.js";
 import { FBdeleteFilesPicture, FBuploadFilesPicture } from "../common/services/uploadImageService.js";
 import sequelize from "../database/config.database.js";
 import KurirPenjual from "../kurirPenjual/kurirPenjual.entity.js";
+import Product from "../product/product.entity.js";
 import User from "./user.entity.js";
 
 class UserService {
@@ -20,8 +22,11 @@ class UserService {
   async getUserById(id) {
     try {
       const user = await this.userRepository.findByPk(id, {
-        attributes: ["id", "name", "username", "email", "profile_picture"],
-        include: [{ model: AuthPenjual, attributes: ["alamat"], include: [{ model: KurirPenjual }] }],
+        attributes: ["id", "name", "username", "email", "profile_picture", "banner_profile_picture","noHandphone"],
+        include: [
+          { model: AuthPenjual, attributes: ["alamat","nomorRekening","namaRekening"], include: [{ model: KurirPenjual }] },
+          { model: Product, as: "products" },
+        ],
       });
       return user;
     } catch (error) {
@@ -30,8 +35,6 @@ class UserService {
   }
   async getUserByUname(uname) {
     try {
-
-    
       const user = await this.userRepository.findOne({
         where: {
           username: uname,
@@ -40,7 +43,7 @@ class UserService {
         // include: [{ model: AuthPenjual, attributes: ["alamat"], include: [{ model: KurirPenjual }] }],
       });
 
-      console.log(user)
+      console.log(user);
       return user;
     } catch (error) {
       throw new Error("Gagal mengambil data pengguna");
@@ -68,26 +71,46 @@ class UserService {
 
       // Process profile picture if provided
       if (files?.profile_picture?.length > 0) {
-        // Check if an existing profile picture exists, delete it
+        // Delete existing profile picture if any
         if (user.profile_picture) {
           await FBdeleteFilesPicture([user.profile_picture.key]); // Delete existing profile picture
         }
 
-        // Upload the new profile picture
-        const profilePictureUpload = await FBuploadFilesPicture(files.profile_picture, "userProfile");
+        // Convert profile picture to WebP
+        const processedProfilePictureFiles = files.profile_picture.map((file) => ({
+          originalname: `${file.originalname}_${Date.now()}`,
+          size: file.size,
+          mimetype: file.mimetype,
+          buffer: file.buffer,
+        }));
+        const convertedProfilePictures = await convertImagesToWebP(processedProfilePictureFiles);
+        console.log("Converted profile picture files:", convertedProfilePictures);
+
+        // Upload the new WebP profile picture
+        const profilePictureUpload = await FBuploadFilesPicture(convertedProfilePictures, "userProfile");
         updateData.profile_picture = profilePictureUpload[0];
         uploadedFiles.push(profilePictureUpload[0].key); // Track new file key for rollback
       }
 
       // Process banner profile picture if provided
       if (files?.banner_profile_picture?.length > 0) {
-        // Check if an existing banner profile picture exists, delete it
+        // Delete existing banner profile picture if any
         if (user.banner_profile_picture) {
           await FBdeleteFilesPicture([user.banner_profile_picture.key]); // Delete existing banner profile picture
         }
 
-        // Upload the new banner profile picture
-        const bannerPictureUpload = await FBuploadFilesPicture(files.banner_profile_picture, "userBannerProfile");
+        // Convert banner profile picture to WebP
+        const processedBannerFiles = files.banner_profile_picture.map((file) => ({
+          originalname: `${file.originalname}_${Date.now()}`,
+          size: file.size,
+          mimetype: file.mimetype,
+          buffer: file.buffer,
+        }));
+        const convertedBannerPictures = await convertImagesToWebP(processedBannerFiles);
+        console.log("Converted banner picture files:", convertedBannerPictures);
+
+        // Upload the new WebP banner profile picture
+        const bannerPictureUpload = await FBuploadFilesPicture(convertedBannerPictures, "userBannerProfile");
         updateData.banner_profile_picture = bannerPictureUpload[0];
         uploadedFiles.push(bannerPictureUpload[0].key); // Track new file key for rollback
       }

@@ -3,6 +3,7 @@ import { Model, DataTypes } from "sequelize";
 import sequelize from "../database/config.database.js"; // Adjust the path to your Sequelize instance
 
 import { config } from "dotenv";
+import { decryptData, encryptData } from "../database/utils/secretUtils.js";
 
 config();
 
@@ -47,6 +48,16 @@ User.init(
     noHandphone: {
       type: DataTypes.STRING,
       allowNull: true,
+      set(value) {
+        const encrypted = encryptData(value);
+        this.setDataValue("noHandphone", encrypted);
+      },
+      get() {
+        const value = this.getDataValue("noHandphone");
+        if (!value) return null;
+        const decrypted = decryptData(value);
+        return decrypted;
+      },
     },
     tanggalLahir: {
       type: DataTypes.DATE,

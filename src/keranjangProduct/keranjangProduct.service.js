@@ -18,6 +18,7 @@ class KeranjangProductService {
         {
           model: Product,
           attributes: ["id", "name", "picture", "condition", "isAvailable"],
+          include: [{ model: User, as: "penjual", attributes: ["id", "username"] }],
         },
 
         {
@@ -27,7 +28,34 @@ class KeranjangProductService {
       ],
     });
 
-    return dataProduct; // Ensure the function returns the fetched data
+    // Group products by `penjual.id`
+    const groupedData = dataProduct.reduce((acc, item) => {
+      const penjualId = item.Product.penjual.id;
+      const penjualName = item.Product.penjual.username;
+
+      // Initialize the group if it doesn't exist
+      if (!acc[penjualId]) {
+        acc[penjualId] = {
+          penjualId,
+          penjualName,
+          products: [],
+        };
+      }
+
+      // Add the product to the corresponding `penjual` group
+      acc[penjualId].products.push({
+        productId: item.Product.id,
+        name: item.Product.name,
+        picture: item.Product.picture,
+        condition: item.Product.condition,
+        isAvailable: item.Product.isAvailable,
+      });
+
+      return acc;
+    }, {});
+
+    // Convert the grouped data from an object to an array (if needed)
+    return Object.values(groupedData);
   }
 
   //   async getOneOfferedProduct(id, userId) {

@@ -9,7 +9,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, pr
   dialect: "mysql", // Set dialect to 'mysql'
   dialectModule: mysql2, // Use mysql2 module
   port: process.env.DB_PORT || 3306, // Default MySQL port
-  logging: false, // Disable logging queries (optional)
+  logging: true, // Disable logging queries (optional)
 });
 
 export default sequelize;

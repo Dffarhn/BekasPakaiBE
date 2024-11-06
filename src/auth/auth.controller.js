@@ -39,7 +39,6 @@ class AuthController {
   //     const userId = req.user.id; // User ID from access token
   //     const { otp } = req.body; // OTP from request body
 
-
   //     const user = await userService.getUserById(userId)
 
   //     // Verify OTP
@@ -73,7 +72,7 @@ class AuthController {
 
       res.status(response.statusCode).json(response);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       next(error); // Handle errors (e.g., BadRequestException)
     }
   }
@@ -96,7 +95,7 @@ class AuthController {
 
       res.status(response.statusCode).json(response);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       next(error);
     }
   }
@@ -170,6 +169,18 @@ class AuthController {
       const result = await authService.verifyOTP(userId, otp); // Call the service to verify OTP
 
       const response = new ResponseSuccess(HttpStatus.OK, "OTP verified successfully", result);
+      res.status(response.statusCode).json(response);
+    } catch (error) {
+      next(error); // Handle errors (e.g., invalid OTP)
+    }
+  }
+  async sendOTP(req, res, next) {
+    try {
+      const userId = req.user.id;
+
+      const result = await authService.resendOTP(userId); // Call the service to verify OTP
+
+      const response = new ResponseSuccess(HttpStatus.CREATED, "OTP resend verified successfully", result);
       res.status(response.statusCode).json(response);
     } catch (error) {
       next(error); // Handle errors (e.g., invalid OTP)

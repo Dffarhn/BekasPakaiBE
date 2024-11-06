@@ -92,7 +92,7 @@ export const associateModels = () => {
   SubCategoryProduct.hasMany(Product, { foreignKey: "categoryProductId", onDelete: "cascade", onUpdate: "cascade" });
   Product.belongsTo(SubCategoryProduct, { foreignKey: "categoryProductId", onDelete: "cascade", onUpdate: "cascade" });
 
-  User.hasMany(Product, { foreignKey: "penjualId", as: "penjual", onDelete: "CASCADE", onUpdate: "CASCADE" });
+  User.hasMany(Product, { foreignKey: "penjualId", as: "products", onDelete: "CASCADE", onUpdate: "CASCADE" });
   Product.belongsTo(User, { foreignKey: "penjualId", as: "penjual", onDelete: "CASCADE", onUpdate: "CASCADE" });
 
   Product.hasMany(OrderedProduct, { foreignKey: "productId", onDelete: "cascade", onUpdate: "cascade" });

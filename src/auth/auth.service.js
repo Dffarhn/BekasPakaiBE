@@ -57,6 +57,7 @@ class AuthService {
       const newUser = await this.userRepository.create(
         {
           ...userData,
+          name: userData.username,
           password: hashedPassword,
         },
         { transaction } // Use the transaction
@@ -180,6 +181,34 @@ class AuthService {
     }
 
     return { message: "Email verified successfully!" };
+  }
+
+  async resendOTP(userId) {
+    try {
+      // Fetch the user by ID
+      const user = await this.userRepository.findByPk(userId);
+
+      if (!user) {
+        throw new BadRequestException("User not found");
+      }
+
+      if (user.isVerified) {
+        throw new BadRequestException("User is already verified");
+      }
+
+      // Generate a new OTP
+      const otp = generateOTP();
+
+      // Store the new OTP associated with the user ID
+      storeOTP(userId, otp);
+
+      // Resend the OTP to the user's email
+      await emailService.sendConfirmationEmail(user.email, user.username, otp);
+
+      return { message: "OTP resent successfully!" };
+    } catch (error) {
+      throw error; // Pass any errors back for handling
+    }
   }
 }
 

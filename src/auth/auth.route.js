@@ -15,6 +15,6 @@ authRouter.post("/google-login", allowedFields(["googleId","name","image","email
 authRouter.post("/refresh-token", authController.refreshToken); // Route for refreshing access token
 authRouter.post("/logout", authController.logout); // Route for logging out
 authRouter.post("/verify-otp", authenticateJWT([ROLE_CUSTOMER]), authController.verifyOTP);
-// authRouter.post("/send-otp", authenticateJWT([ROLE_CUSTOMER]), authController.sendOTP);
+authRouter.post("/send-otp", authenticateJWT([ROLE_CUSTOMER]), authController.sendOTP);
 
 export default authRouter;

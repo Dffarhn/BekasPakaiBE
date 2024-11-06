@@ -19,6 +19,7 @@ Role.init(
   {
     sequelize, // Pass the sequelize instance
     modelName: "Role", // Name of the model
+    tableName: "roles"
   }
 );
 
