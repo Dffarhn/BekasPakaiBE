@@ -20,17 +20,7 @@ AuthPenjual.init(
     },
     namaRekening: {
       type: DataTypes.STRING,
-      allowNull: false,
-      set(value) {
-        const encrypted = encryptData(value);
-        this.setDataValue("namaRekening", encrypted); 
-      },
-      get() {
-        const value = this.getDataValue("namaRekening");
-        if (!value) return null;
-        const decrypted = decryptData(value);
-        return decrypted;
-      },
+      allowNull: false
     },
     nomorRekening: {
       type: DataTypes.STRING,
