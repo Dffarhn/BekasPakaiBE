@@ -62,7 +62,7 @@ class ProductService {
         {
           model: User,
           as: "penjual",
-          attributes: ["username"],
+          attributes: ["username","id"],
           include: [
             {
               model: AuthPenjual,
