@@ -113,6 +113,8 @@ class AuthService {
   // Login with Google OAuth
   async authViaGoogle(data) {
     const { googleId, email, name, image } = data;
+    // Extract username from email
+    const username = email.split("@")[0];
 
     // Check if the user already exists
     let user = await this.userRepository.findOne({ where: { googleId } });
@@ -121,7 +123,8 @@ class AuthService {
       // Create new user if it doesn't exist
       user = await this.userRepository.create({
         email,
-        username: name,
+        username: username,
+        name: name,
         profile_picture: {
           url: image,
         },

@@ -20,9 +20,27 @@ class UserService {
   async getUserById(id) {
     try {
       const user = await this.userRepository.findByPk(id, {
-        attributes:["id","name","username","email","profile_picture"],
-        include: [{ model: AuthPenjual,attributes:["alamat"], include: [{ model: KurirPenjual }] }],
+        attributes: ["id", "name", "username", "email", "profile_picture"],
+        include: [{ model: AuthPenjual, attributes: ["alamat"], include: [{ model: KurirPenjual }] }],
       });
+      return user;
+    } catch (error) {
+      throw new Error("Gagal mengambil data pengguna");
+    }
+  }
+  async getUserByUname(uname) {
+    try {
+
+    
+      const user = await this.userRepository.findOne({
+        where: {
+          username: uname,
+        },
+        attributes: ["id", "name", "username", "email", "profile_picture"],
+        // include: [{ model: AuthPenjual, attributes: ["alamat"], include: [{ model: KurirPenjual }] }],
+      });
+
+      console.log(user)
       return user;
     } catch (error) {
       throw new Error("Gagal mengambil data pengguna");
@@ -56,7 +74,7 @@ class UserService {
         }
 
         // Upload the new profile picture
-        const profilePictureUpload = await FBuploadFilesPicture(files.profile_picture,"userProfile");
+        const profilePictureUpload = await FBuploadFilesPicture(files.profile_picture, "userProfile");
         updateData.profile_picture = profilePictureUpload[0];
         uploadedFiles.push(profilePictureUpload[0].key); // Track new file key for rollback
       }
@@ -69,7 +87,7 @@ class UserService {
         }
 
         // Upload the new banner profile picture
-        const bannerPictureUpload = await FBuploadFilesPicture(files.banner_profile_picture,"userBannerProfile");
+        const bannerPictureUpload = await FBuploadFilesPicture(files.banner_profile_picture, "userBannerProfile");
         updateData.banner_profile_picture = bannerPictureUpload[0];
         uploadedFiles.push(bannerPictureUpload[0].key); // Track new file key for rollback
       }

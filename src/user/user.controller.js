@@ -18,12 +18,16 @@ class UserController {
 
   async getUserById(req, res, next) {
     try {
-      const { id } = req.params;
-      const user = await userService.getUserById(id);
+      console.log("masuk  ")
+      const { uname } = req.params;
+      console.log(uname)
+      const user = await userService.getUserByUname(uname);
       if (!user) {
-        throw new NotFoundException(`User with ID ${id} not found`);
+        throw new NotFoundException(`User with ID ${uname} not found`);
       }
-      return user;
+      const response = new ResponseSuccess(HttpStatus.OK, "Berhasil Mendapatkan Semua User", user);
+
+      res.status(response.statusCode).json(response);
     } catch (error) {
       next(error);
     }

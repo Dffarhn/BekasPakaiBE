@@ -11,7 +11,7 @@ const userRouter = express.Router();
 // Rute-rute
 userRouter.get("/", userController.getAllUsers);
 userRouter.get("/profile", authenticateJWT([ROLE_ADMIN, ROLE_CUSTOMER, ROLE_TOKO]), userController.getUserProfile);
-userRouter.get("/:id", userController.getUserById);
+userRouter.get("/:uname", userController.getUserById);
 userRouter.post("/", createUserValidator, handleValidationErrors, userController.createUser);
 userRouter.patch(
   "/",
