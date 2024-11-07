@@ -21,7 +21,7 @@ class KeranjangProductService {
         {
           model: Product,
           attributes: ["id", "name", "picture", "condition", "isAvailable","price"],
-          include: [{ model: User, as: "penjual", attributes: ["id", "username","profile_pictue"] }],
+          include: [{ model: User, as: "penjual", attributes: ["id", "username","profile_picture"] }],
         },
 
         {
