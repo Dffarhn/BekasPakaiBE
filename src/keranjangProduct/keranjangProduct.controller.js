@@ -55,14 +55,30 @@ class KeranjangProductController {
   //     }
   //   }
 
-  async delete(req, res, next) {
+  async deleteAllInKeranjang(req, res, next) {
     try {
       const { id } = req.params; // Extract id from params
-      const isDeleted = await keranjangProductService.delete(id);
+      const userId = req.user.id
+      const isDeleted = await keranjangProductService.deleteAll(id,userId);
       if (!isDeleted) {
-        throw new NotFoundException("Keranjang tidak ditemukan");
+        throw new NotFoundException("Keranjang tidak ditemukan"); // Cart not found
       }
-      const response = new ResponseSuccess(HttpStatus.OK, "Successfully Deleted Jenis Product");
+      const response = new ResponseSuccess(HttpStatus.OK, "Successfully Deleted All Products in Keranjang");
+      res.status(response.statusCode).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteOneProductInKeranjang(req, res, next) {
+    try {
+      const { id_product } = req.params; // Extract id from params
+      const customerId = req.user.id; // Extract user ID
+      const isDeleted = await keranjangProductService.delete(id_product, customerId);
+      if (!isDeleted) {
+        throw new NotFoundException("Product in Keranjang not found");
+      }
+      const response = new ResponseSuccess(HttpStatus.OK, "Successfully Deleted Product in Keranjang");
       res.status(response.statusCode).json(response);
     } catch (error) {
       next(error);

@@ -2,6 +2,9 @@ import { where } from "sequelize";
 import Product from "../product/product.entity.js";
 import User from "../user/user.entity.js";
 import KeranjangProduct from "./keranjangProduct.entity.js";
+import ForbiddenException from "../common/execeptions/ForbiddenException.js";
+import sequelize from "../database/config.database.js";
+import NotFoundException from "../common/execeptions/NotFoundException.js";
 
 class KeranjangProductService {
   constructor() {
@@ -81,11 +84,22 @@ class KeranjangProductService {
   //   }
 
   async create(keranjangProductData) {
+    // console.log(keranjangProductData)
     try {
+      const existingProduct = await this.keranjangProductRepository.findOne({
+        where: {
+          productId: keranjangProductData.productId,
+          customerId: keranjangProductData.customerId,
+        },
+      });
+
+      if (existingProduct) {
+        throw new ForbiddenException("Product already exists in the cart.");
+      }
       const newProduct = await this.keranjangProductRepository.create(keranjangProductData);
       return { createdAt: newProduct.createdAt };
     } catch (error) {
-      throw new Error("Failed to create category product");
+      throw error;
     }
   }
 
@@ -98,9 +112,54 @@ class KeranjangProductService {
   //     }
   //   }
 
-  async delete(id) {
-    const result = await this.keranjangProductRepository.destroy({ where: { id } });
-    return result === 1; // Returns true if the product was deleted
+  async deleteAll(id_penjual, id_user) {
+    try {
+      // Check if there are any matching keranjang entries
+      const existingItems = await this.keranjangProductRepository.findAll({
+        where: {
+          "$Product.penjualId$": id_penjual,
+          customerId: id_user,
+        },
+        include: [
+          {
+            model: Product,
+            include: [{ model: User, as: "penjual" }],
+          },
+        ],
+      });
+
+      if (existingItems.length === 0) {
+        throw new NotFoundException("Keranjang tidak ditemukan"); // Throw an error if no matching items
+      }
+
+      const query = `
+        DELETE kp
+        FROM keranjang_product kp
+        INNER JOIN product p ON kp.productId = p.id
+        INNER JOIN user_bekasku u ON p.penjualId = u.id
+        WHERE u.id = :id_penjual AND kp.customerId = :id_user
+      `;
+      await sequelize.query(query, {
+        replacements: { id_penjual, id_user },
+        type: sequelize.QueryTypes.DELETE,
+      });
+
+      // If no errors occurred, assume success
+      return true;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  async delete(productId, customerId) {
+    const result = await this.keranjangProductRepository.destroy({
+      where: {
+        productId,
+        customerId,
+      },
+    });
+    return result > 0; // Returns true if one or more products were deleted
   }
 }
 

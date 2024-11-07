@@ -10,8 +10,9 @@ const KeranjangProductRoute = express.Router();
 // Rute-rute
 KeranjangProductRoute.get("/", authenticateJWT([ROLE_CUSTOMER, ROLE_TOKO, ROLE_ADMIN]), keranjangProductController.getAll);
 // KeranjangProductRoute.get("/:id", authenticateJWT([ROLE_CUSTOMER, ROLE_TOKO, ROLE_ADMIN]), keranjangProductController.getProductById);
-KeranjangProductRoute.post("/:id_product", authenticateJWT([ROLE_CUSTOMER, ROLE_TOKO, ROLE_ADMIN]),keranjangProductController.create);
+KeranjangProductRoute.post("/:id_product", authenticateJWT([ROLE_CUSTOMER, ROLE_TOKO, ROLE_ADMIN]), keranjangProductController.create);
 // KeranjangProductRoute.put("/:id", authenticateJWT([ROLE_TOKO]), keranjangProductController.updateProduct);
-KeranjangProductRoute.delete("/:id", authenticateJWT([ROLE_CUSTOMER, ROLE_TOKO, ROLE_ADMIN]), keranjangProductController.delete);
+KeranjangProductRoute.delete("/all/:id", authenticateJWT([ROLE_CUSTOMER, ROLE_TOKO, ROLE_ADMIN]), keranjangProductController.deleteAllInKeranjang);
+KeranjangProductRoute.delete("/:id_product", authenticateJWT([ROLE_CUSTOMER, ROLE_TOKO, ROLE_ADMIN]), keranjangProductController.deleteOneProductInKeranjang);
 
 export default KeranjangProductRoute;
