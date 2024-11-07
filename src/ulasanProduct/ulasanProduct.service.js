@@ -12,25 +12,38 @@ class UlasanProductService {
     this.productRepository = Product;
   }
 
-  //   // Get all products with optional filters and associations
-  //   async getProducts(options = {}) {
-  //     try {
-  //       const data = await this.productRepository.findAll({
-  //         attributes: ["id", "name", "picture", "condition", "price","discount"],
-  //         include: [
-  //           { model: JenisProduct, attributes: ["id", "name"] }, // Assuming the alias is 'jenisProduct'
-  //           { model: SubCategoryProduct, attributes: ["id", "name"] },
-  //           { model: User, as: "penjual", attributes: ["id", "username"] }, // Assuming 'penjual' is the alias for the User model
-  //         ],
-  //         ...options,
-  //       });
-  //       console.log(data);
+  // Get all products with optional filters and associations
+  async getUlasanProducts(penjualId) {
+    try {
+      const data = await this.ulasanProductRepository.findAll({
+        attributes: ["id", "ulasan", "pictures", "rating", "ulasan_owner"],
+        include: [
+          {
+            model: Product,
+            attributes: ["id", "name", "price"],
+            include: [
+              {
+                model: User,
+                as: "penjual",
+                attributes: ["id", "username", "profile_picture"],
+                where: { id: penjualId }, // Filter by penjualId if provided
+              },
+            ],
+          },
+          {
+            model: User,
+            attributes: ["id", "username"],
+          },
+        ],
+      });
 
-  //       return data;
-  //     } catch (error) {
-  //       console.log(error.message);
-  //     }
-  //   }
+      console.log(data);
+
+      return data;
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
 
   //   // Get product by id
   //   async getProductById(id) {

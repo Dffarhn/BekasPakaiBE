@@ -55,7 +55,6 @@ const io = new Server(server, {
 // Middleware to authenticate the socket connection
 io.use((socket, next) => {
   const token = socket.handshake.auth.token; // Ensure the token is sent from the client
-  console.log("Token received:", token); // Debugging line
   if (!token) return next(new Error("Missing authentication token"));
 
   jwt.verify(token, process.env.JWT_ACCESS_TOKEN, (err, decoded) => {
@@ -69,18 +68,15 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
 
   socket.emit("userInfo", { id: socket.user.id }); 
 
   socket.on("joinRoom", async ({ otherUserId }) => {
-    console.log(otherUserId)
     const userId = socket.user.id; // Authenticated user’s ID
     const room = await chatRoomService.findOrCreateChatRoom(userId, otherUserId);
     const roomId = room.id;
 
     socket.join(roomId);
-    console.log(`User ${userId} joined room: ${roomId}`);
 
     const messages = await chatService.getChatHistory(roomId);
     socket.emit("previousMessages", messages);
@@ -93,7 +89,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected");
   });
 });
 
@@ -129,7 +124,6 @@ server.listen(port, () => {
 
 // app.get('/fetch-shipping', async (req, res) => {
 
-//   console.log(req)
 //   try {
 //     const response = await axios.get(
 //       'https://prd-srvc-dshbd-api-ext.kiriminaja.com/api/dm/v1/shipping/express',

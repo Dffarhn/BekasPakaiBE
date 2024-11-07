@@ -55,7 +55,6 @@ class AuthController {
   // }
   async register(req, res, next) {
     try {
-      console.log("masuk");
       const { access_token, refresh_token } = await authService.register(req.body);
 
       // Set the refresh token in an HTTP-only cookie
@@ -72,7 +71,6 @@ class AuthController {
 
       res.status(response.statusCode).json(response);
     } catch (error) {
-      console.log(error);
       next(error); // Handle errors (e.g., BadRequestException)
     }
   }
@@ -95,7 +93,6 @@ class AuthController {
 
       res.status(response.statusCode).json(response);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   }

@@ -61,7 +61,6 @@ class XenditService {
   
       let data = await response.json();
 
-      // console.log(input)
   
       // Apply the filter on `channel_name`
       if (input) {
@@ -70,7 +69,6 @@ class XenditService {
   
       return data
     } catch (error) {
-      console.error("Error fetching bank codes:", error);
       throw error;
     }
   }

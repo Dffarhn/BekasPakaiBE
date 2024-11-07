@@ -6,19 +6,19 @@ import ulasanProductService from "./ulasanProduct.service.js";
 
 class UlasanProductController {
   // Fetch all products
-  //   async getProducts(req, res, next) {
-  //     try {
-  //       console.log("masuk");
-  //       const products = await ProductService.getProducts();
-  //       const response = new ResponseSuccess(HttpStatus.OK, "Successfully get products", {
-  //         products,
-  //       });
+  async getUlasanProducts(req, res, next) {
+    try {
+      const { id } = req.params;
+      const products = await ulasanProductService.getUlasanProducts(id);
+      const response = new ResponseSuccess(HttpStatus.OK, "Successfully Get Ulasan products", {
+        products,
+      });
 
-  //       res.status(response.statusCode).json(response);
-  //     } catch (error) {
-  //       next(error);
-  //     }
-  //   }
+      res.status(response.statusCode).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
 
   //   // Fetch a single product by ID
   //   async getProductById(req, res, next) {

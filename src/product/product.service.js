@@ -23,7 +23,6 @@ class ProductService {
       const { category, subcategory, tipe, limit, page, toko } = options;
 
       const whereClause = {
-        isAvailable: true,
         // Apply filters using the `$` notation to reference the `name` fields in associated models
         ...(category && { "$JenisProduct.name$": category }), // Filter by `JenisProduct.name`
         ...(subcategory && { "$SubCategoryProduct.name$": subcategory }), // Filter by `SubCategoryProduct.name`
@@ -32,7 +31,7 @@ class ProductService {
       };
 
       const data = await this.productRepository.findAll({
-        attributes: ["id", "name", "picture", "condition", "price", "discount"],
+        attributes: ["id", "name", "picture", "condition", "price", "discount","isAvailable"],
         include: [
           { model: JenisProduct, attributes: ["id", "name"] }, // Assuming the alias is 'jenisProduct'
           { model: SubCategoryProduct, attributes: ["id", "name"] },
@@ -46,7 +45,6 @@ class ProductService {
 
       return data;
     } catch (error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -62,7 +60,7 @@ class ProductService {
         {
           model: User,
           as: "penjual",
-          attributes: ["username","id"],
+          attributes: ["username","id","profile_picture"],
           include: [
             {
               model: AuthPenjual,
@@ -132,7 +130,7 @@ class ProductService {
       include: [
         { model: JenisProduct, attributes: ["id", "name"] },
         { model: SubCategoryProduct, attributes: ["id", "name"] },
-        { model: User, as: "penjual", attributes: ["id", "username"] },
+        { model: User, as: "penjual", attributes: ["id", "username","profile_picture"] },
       ],
     });
   }

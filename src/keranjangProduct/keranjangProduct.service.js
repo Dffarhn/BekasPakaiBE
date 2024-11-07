@@ -20,8 +20,8 @@ class KeranjangProductService {
       include: [
         {
           model: Product,
-          attributes: ["id", "name", "picture", "condition", "isAvailable"],
-          include: [{ model: User, as: "penjual", attributes: ["id", "username"] }],
+          attributes: ["id", "name", "picture", "condition", "isAvailable","price"],
+          include: [{ model: User, as: "penjual", attributes: ["id", "username","profile_pictue"] }],
         },
 
         {
@@ -35,6 +35,7 @@ class KeranjangProductService {
     const groupedData = dataProduct.reduce((acc, item) => {
       const penjualId = item.Product.penjual.id;
       const penjualName = item.Product.penjual.username;
+      const pictureName = item.Product.penjual.profile_picture;
 
       // Initialize the group if it doesn't exist
       if (!acc[penjualId]) {

@@ -58,8 +58,8 @@ class KeranjangProductController {
   async deleteAllInKeranjang(req, res, next) {
     try {
       const { id } = req.params; // Extract id from params
-      const userId = req.user.id
-      const isDeleted = await keranjangProductService.deleteAll(id,userId);
+      const userId = req.user.id;
+      const isDeleted = await keranjangProductService.deleteAll(id, userId);
       if (!isDeleted) {
         throw new NotFoundException("Keranjang tidak ditemukan"); // Cart not found
       }

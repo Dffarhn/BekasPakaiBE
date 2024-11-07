@@ -83,11 +83,9 @@ class BiteShipService {
   async showPostalCode(penjualAlamatData) {
     const { negara, input } = penjualAlamatData;
 
-    // console.log(input);
     // Encode the query to replace spaces with '+'
     const queryStr = String(input);
     const encodedQuery = queryStr.includes(" ") ? queryStr.replace(/\s+/g, "+") : queryStr;
-    // console.log(encodedQuery);
     // Define the base URL and construct the full URL
     const baseURL = `${this.BASEURLBITESHIP}/v1/maps/areas`;
     const queryURL = `${baseURL}?countries=${negara}&input=${encodedQuery}&type=single`;

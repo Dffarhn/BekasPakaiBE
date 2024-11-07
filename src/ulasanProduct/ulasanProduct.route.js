@@ -8,7 +8,7 @@ const UlasanProductRoute = express.Router();
 
 // Rute-rute
 // UlasanProductRoute.get("/", authenticateJWT([ROLE_CUSTOMER,ROLE_ADMIN,ROLE_TOKO]), ulasanProductController.getAll);
-// UlasanProductRoute.get("/:id", ulasanProductController.getOne);
+UlasanProductRoute.get("/:id", ulasanProductController.getUlasanProducts);
 UlasanProductRoute.post("/:id_product", authenticateJWT([ROLE_CUSTOMER, ROLE_TOKO, ROLE_ADMIN]), upload.array("files", 2), ulasanProductController.create);
 UlasanProductRoute.post("/:id_ulasan_product/owner", authenticateJWT([ROLE_TOKO, ROLE_ADMIN]), ulasanProductController.createUlasanProductOwner);
 // UlasanProductRoute.put("/:id", ulasanProductController.update);

@@ -9,7 +9,6 @@ class BiteShipController {
       // Extract data from query parameters
       const { negara, input } = req.query;
 
-      console.log(input)
 
       // Call the service to fetch postal codes
       const { nameCodes } = await biteshipService.showPostalCode({ negara, input });
@@ -20,7 +19,6 @@ class BiteShipController {
       // Send the response
       res.status(response.statusCode).json(response);
     } catch (error) {
-      console.log(error.message)
       // Forward any error to the error handler middleware
       next(error);
     }
