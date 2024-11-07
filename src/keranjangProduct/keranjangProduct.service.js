@@ -53,6 +53,7 @@ class KeranjangProductService {
         picture: item.Product.picture,
         condition: item.Product.condition,
         isAvailable: item.Product.isAvailable,
+        price: item.Product.price, 
       });
 
       return acc;
