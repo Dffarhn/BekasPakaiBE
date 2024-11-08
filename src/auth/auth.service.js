@@ -18,13 +18,13 @@ class AuthService {
   // Helper method to generate tokens
   generateTokens(user) {
     const accessToken = jwt.sign(
-      { id: user.id, email: user.email, role: user.roleId },
+      { id: user.id, email: user.email, role: user.roleId, isVerified: user.isVerified },
       process.env.JWT_ACCESS_TOKEN,
       { expiresIn: "1h" } // Short-lived access token
     );
 
     const refreshToken = jwt.sign(
-      { id: user.id, email: user.email, role: user.roleId },
+      { id: user.id, email: user.email, role: user.roleId, isVerified: user.isVerified },
       process.env.JWT_REFRESH_TOKEN,
       { expiresIn: "7d" } // Long-lived refresh token
     );

@@ -5,6 +5,7 @@ import BadRequestException from "../common/execeptions/BadRequestExecption.js";
 import dotenv from "dotenv";
 import AuthPenjual from "./authPenjual.entity.js";
 import sequelize from "../database/config.database.js";
+import authService from "../auth/auth.service.js";
 
 dotenv.config();
 
@@ -15,21 +16,13 @@ class AuthPenjualService {
   }
 
   // Helper method to generate tokens
-  generateTokens(user) {
-    const accessToken = jwt.sign(
-      { id: user.id, email: user.email, role: user.roleId },
-      process.env.JWT_ACCESS_TOKEN,
-      { expiresIn: "1h" }
-    );
+  // generateTokens(user) {
+  //   const accessToken = jwt.sign({ id: user.id, email: user.email, role: user.roleId, isVerified: user.isVerified }, process.env.JWT_ACCESS_TOKEN, { expiresIn: "1h" });
 
-    const refreshToken = jwt.sign(
-      { id: user.id, email: user.email, role: user.roleId },
-      process.env.JWT_REFRESH_TOKEN,
-      { expiresIn: "7d" }
-    );
+  //   const refreshToken = jwt.sign({ id: user.id, email: user.email, role: user.roleId, isVerified: user.isVerified }, process.env.JWT_REFRESH_TOKEN, { expiresIn: "7d" });
 
-    return { accessToken, refreshToken };
-  }
+  //   return { accessToken, refreshToken };
+  // }
 
   async upgradeToPenjual(userId, penjualData) {
     // Start a transaction
@@ -62,7 +55,7 @@ class AuthPenjualService {
       await existingUser.save({ transaction });
 
       // Generate tokens
-      const { accessToken, refreshToken } = this.generateTokens(existingUser);
+      const { accessToken, refreshToken } = authService.generateTokens(existingUser);
 
       // Commit the transaction
       await transaction.commit();

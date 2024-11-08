@@ -6,8 +6,6 @@ import User from "../user/user.entity.js";
 import Product from "../product/product.entity.js";
 import AuthPenjual from "../authPenjual/authPenjual.entity.js";
 import BadRequestException from "../common/execeptions/BadRequestExecption.js";
-import userService from "../user/user.service.js";
-import ForbiddenException from "../common/execeptions/ForbiddenException.js";
 import KurirPenjual from "../kurirPenjual/kurirPenjual.entity.js";
 import biteshipService from "../BiteShip/biteship.service.js";
 import { createQRPaymentObject } from "../Xendit/dto/createQrPayment.js";
@@ -22,10 +20,7 @@ class OrderedProductService {
 
   async updateOrderStatus(orderId, newStatus) {
     try {
-      const updatedOrder = await this.orderedProductRepository.update(
-        { status: newStatus },
-        { where: { id_shipment: orderId } }
-      );
+      const updatedOrder = await this.orderedProductRepository.update({ status: newStatus }, { where: { id_shipment: orderId } });
 
       if (updatedOrder[0] === 0) {
         throw new BadRequestException("Order not found or status update failed.");
@@ -38,7 +33,6 @@ class OrderedProductService {
     }
   }
 
-
   async create(OrderData) {
     const transaction = await sequelize.transaction(); // Begin transaction
     try {
@@ -46,43 +40,72 @@ class OrderedProductService {
       const { courierId } = shipping;
 
       const product = await this._getProductDetails(id_barang, courierId);
-      const buyerDetails = this._mapBuyerDetails(buyerData);
-      const penjual = this._mapPenjualDetails(product);
 
-      const items = this._createItemDetails(product);
-      const courierDetails = this._getCourierDetails(product.penjual.AuthPenjual.KurirPenjuals);
+      // Calculate the total product price
+      let totalProductPrice = product.reduce((sum, item) => sum + item.price, 0);
+
+      const buyerDetails = this._mapBuyerDetails(buyerData);
+      const penjual = this._mapPenjualDetails(product[0]);
+
+      const items = [];
+
+      product.forEach((product) => {
+        const item = this._createItemDetails(product);
+        items.push(item);
+      });
+
+      const courierDetails = this._getCourierDetails(product[0].penjual.AuthPenjual.KurirPenjuals);
 
       const createShipmentData = createShippingRequestDTO(penjual, buyerDetails, courierDetails, items);
+      // console.log(createShipmentData);
       const draftOrders = await biteshipService.createShipment(createShipmentData);
       const shippingFee = draftOrders.price;
       const idShipment = draftOrders.id;
 
+      totalProductPrice += 5000
+      totalProductPrice += shippingFee
 
       const basketData = this._createBasketData(items, shippingFee);
-      const orderData = this._createOrderData(product, buyerDetails, shippingFee,idShipment, buyerId);
+
+      // console.log(orderData);
 
       const metadataPayment = {
-        id_shipment: idShipment
+        id_shipment: idShipment,
+      };
+
+      // Create orders for each product
+      const createdOrders = [];
+
+      for (const itemProduct of product) {
+        const orderData = this._createOrderData(itemProduct, buyerDetails, idShipment, buyerId,totalProductPrice);
+
+        // Create the OrderedProduct entry for each product
+        const createdOrder = await this.orderedProductRepository.create(orderData, { transaction });
+        createdOrders.push(createdOrder);
       }
 
-      const createdOrder = await this.orderedProductRepository.create(orderData, { transaction });  
-      const paymentData = this._createPaymentData(createdOrder, basketData,metadataPayment);
+      const paymentData = this._createPaymentData(idShipment,totalProductPrice,basketData, metadataPayment);
 
-      console.log(paymentData)
+      // console.log(paymentData);
 
       const payment = await xenditService.createQrPayment(paymentData);
       await transaction.commit(); // Commit transaction if successful
 
       return payment;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       await transaction.rollback(); // Roll back transaction on error
       throw error;
     }
   }
 
-  async _getProductDetails(id_barang, courierId) {
-    const product = await this.productRepository.findOne({
+  async _getProductDetails(id_barangArray, courierId) {
+    // Ensure `id_barangArray` is treated as an array
+    if (!Array.isArray(id_barangArray)) {
+      throw new BadRequestException("id_barang must be an array of UUIDs.");
+    }
+
+    const products = await this.productRepository.findAll({
       attributes: ["id", "name", "price", "isAvailable", "discount", "weight", "volumePanjang", "volumeLebar", "volumeTinggi"],
       include: [
         { model: JenisProduct, attributes: ["id", "name"] },
@@ -90,7 +113,7 @@ class OrderedProductService {
         {
           model: User,
           as: "penjual",
-          attributes: ["username","noHandphone"],
+          attributes: ["username", "noHandphone"],
           include: [
             {
               model: AuthPenjual,
@@ -100,19 +123,31 @@ class OrderedProductService {
                   model: KurirPenjual,
                   attributes: ["id", "layananKurirId", "layananKurirServiceId"],
                   where: { id: courierId },
+                  required: false, // Optional, based on your requirements
                 },
               ],
             },
           ],
         },
       ],
-      where: { id: id_barang, isAvailable: true },
+      where: {
+        id: id_barangArray,
+        isAvailable: true,
+      },
       nest: true,
     });
 
-    if (!product) throw new BadRequestException("The product is not on sale.");
-    if (!product.penjual.AuthPenjual) throw new BadRequestException("Shipping information is incorrect.");
-    return product;
+    if (products.length === 0) {
+      throw new BadRequestException("No products found or they are not on sale.");
+    }
+
+    products.forEach((product) => {
+      if (!product.penjual?.AuthPenjual) {
+        throw new BadRequestException(`Shipping information is incorrect for product ID ${product.id}.`);
+      }
+    });
+
+    return products;
   }
 
   _mapBuyerDetails(buyerData) {
@@ -138,19 +173,17 @@ class OrderedProductService {
   }
 
   _createItemDetails(product) {
-    return [
-      {
-        id: product.id,
-        name: product.name,
-        category: product.JenisProduct.name,
-        value: product.price,
-        quantity: 1,
-        height: product.volumeTinggi,
-        length: product.volumePanjang,
-        weight: product.weight,
-        width: product.volumeLebar,
-      },
-    ];
+    return {
+      id: product.id,
+      name: product.name,
+      category: product.JenisProduct.name,
+      value: product.price,
+      quantity: 1,
+      height: product.volumeTinggi,
+      length: product.volumePanjang,
+      weight: product.weight,
+      width: product.volumeLebar,
+    };
   }
 
   _getCourierDetails(couriers) {
@@ -196,10 +229,10 @@ class OrderedProductService {
     ];
   }
 
-  _createOrderData(product, buyerDetails, shippingFee, shipmentId,buyerId) {
+  _createOrderData(product, buyerDetails, shipmentId, buyerId, price) {
     return {
       id_shipment: shipmentId,
-      price: product.price + 5000 + shippingFee,
+      price: price,
       address: buyerDetails.address,
       notes: buyerDetails.note,
       status: "Pending",
@@ -210,13 +243,13 @@ class OrderedProductService {
     };
   }
 
-  _createPaymentData(createdOrder, basketData,metadata) {
+  _createPaymentData(idShipment,price, basketData, metadata) {
     return createQRPaymentObject(
       {
-        reference_id: createdOrder.id,
+        reference_id: idShipment,
         type: "DYNAMIC",
         currency: "IDR",
-        amount: createdOrder.price,
+        amount: price,
         channel_code: "ID_DANA",
         expires_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
       },
