@@ -35,7 +35,7 @@ class ProductService {
         include: [
           { model: JenisProduct, attributes: ["id", "name"] }, // Assuming the alias is 'jenisProduct'
           { model: SubCategoryProduct, attributes: ["id", "name"] },
-          { model: User, as: "penjual", attributes: ["id", "username"] }, // Assuming 'penjual' is the alias for the User model
+          { model: User, as: "penjual", attributes: ["id", "username","profile_picture"] }, // Assuming 'penjual' is the alias for the User model
         ],
         where: whereClause,
         // Pagination options
