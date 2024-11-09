@@ -163,9 +163,16 @@ class AuthController {
       const userId = req.user.id;
       const { otp } = req.body; // Get userId and OTP from request body
 
-      const result = await authService.verifyOTP(userId, otp); // Call the service to verify OTP
+      const { access_token, refresh_token } = await authService.verifyOTP(userId, otp); // Call the service to verify OTP
 
-      const response = new ResponseSuccess(HttpStatus.OK, "OTP verified successfully", result);
+res.cookie("refresh_token", refresh_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      const response = new ResponseSuccess(HttpStatus.OK, "OTP verified successfully", { access_token} );
       res.status(response.statusCode).json(response);
     } catch (error) {
       next(error); // Handle errors (e.g., invalid OTP)
