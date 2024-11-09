@@ -180,7 +180,13 @@ class AuthService {
       await user.save(); // Save the changes
     }
 
-    return { message: "Email verified successfully!" };
+// Generate tokens
+    const { accessToken, refreshToken } = this.generateTokens(user);
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
   }
 
   async resendOTP(userId) {
