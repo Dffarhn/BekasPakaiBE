@@ -1,5 +1,4 @@
 import BadRequestException from "../common/execeptions/BadRequestExecption.js";
-import { sendVerificationCodeTwillio, verifyUserOTPTwillio } from "../common/services/twilioService.js";
 import HttpStatus from "../common/utils/HttpStatus.js";
 import ResponseSuccess from "../common/utils/ResponseSuccess.js";
 import userService from "../user/user.service.js";

@@ -15,7 +15,7 @@ class XenditController {
 
       res.status(response.statusCode).json(response);
     } catch (error) {
-      console.log(error.message);
+      // console.log(error.message);
       next(error); // Handle errors using error handling middleware
     }
   }
@@ -34,7 +34,7 @@ class XenditController {
 
       res.json("ok");
     } catch (error) {
-      console.log(error.message);
+      // console.log(error.message);
       next(error); // Handle errors using error handling middleware
     }
   }

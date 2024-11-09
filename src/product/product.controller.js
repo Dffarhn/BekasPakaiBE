@@ -70,7 +70,7 @@ class ProductController {
 
       res.status(response.statusCode).json(response);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       next(error);
     }
   }
@@ -97,7 +97,6 @@ class ProductController {
   async updateProduct(req, res, next) {
     try {
       const { id } = req.params;
-      console.log(req.body);
       const productData = req.body;
       const updatedProduct = await ProductService.updateProduct(id, productData);
       if (!updatedProduct) {
@@ -109,7 +108,6 @@ class ProductController {
 
       res.status(response.statusCode).json(response);
     } catch (error) {
-      console.log(error.message);
       next(error);
     }
   }

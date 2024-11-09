@@ -7,7 +7,6 @@ import sharp from "sharp";
  * @returns {Promise<Array>} - Promise resolving to an array of converted files.
  */
 export async function convertImagesToWebP(files, quality = 80) {
-  console.log("Starting image conversion");
 
   return Promise.all(
     files.map(async (file) => {

@@ -28,7 +28,7 @@ class OrderedProductService {
 
       return { message: "Order status updated successfully", status: newStatus };
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       throw error;
     }
   }
@@ -93,7 +93,6 @@ class OrderedProductService {
 
       return payment;
     } catch (error) {
-      console.log(error);
       await transaction.rollback(); // Roll back transaction on error
       throw error;
     }

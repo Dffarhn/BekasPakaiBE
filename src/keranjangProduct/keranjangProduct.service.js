@@ -149,7 +149,7 @@ class KeranjangProductService {
       // If no errors occurred, assume success
       return true;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       throw error;
     }
   }

@@ -13,7 +13,7 @@ class KurirPenjualController {
       const response = new ResponseSuccess(HttpStatus.CREATED, "User add kurir successfully", result);
       res.status(response.statusCode).json(response);
     } catch (error) {
-      console.log(error.message);
+      // console.log(error.message);
       next(error); // Error handling middleware
     }
   }

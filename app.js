@@ -14,6 +14,7 @@ import chatRoomService from "./src/ChatRooms/chatRoom.service.js";
 import chatService from "./src/chat/chat.service.js";
 import { authenticateJWT } from "./src/common/middleware/jwt.middleware.js";
 import { ROLE_CUSTOMER, ROLE_TOKO } from "./src/roles/role.enum.js";
+import morgan from "morgan"; // Import morgan
 
 dotenv.config();
 
@@ -21,6 +22,8 @@ const app = express();
 const port = process.env.PORT || 3001; // Fixed port assignment
 
 // Middleware
+// Middleware
+app.use(morgan(':method :url :status :response-time ms - :res[content-length]')); // Custom morgan format
 app.use(compression());
 app.use(cors({
   origin: "*", // Allow your client app's origin
@@ -100,6 +103,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1/", router);
 app.use(errorHandler);
 
+
 // Start server after the database is initialized successfully
 const startApp = async () => {
   try {
@@ -121,33 +125,3 @@ startApp();
 server.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
-
-// app.get('/fetch-shipping', async (req, res) => {
-
-//   try {
-//     const response = await axios.get(
-//       'https://prd-srvc-dshbd-api-ext.kiriminaja.com/api/dm/v1/shipping/express',
-//       {
-//         params: {
-//           subdistrict_origin: '31483',
-//           subdistrict_destination: '31485',
-//           insurance: 'false',
-//           originTitle: 'Jogo Tirto, Berbah, Sleman, DI Yogyakarta, 55573',
-//           destinationTitle: 'Abiansemal, Abiansemal, Badung, Bali, 80352',
-//           weight: 100,
-//           item_value: 50000,
-//         },
-//         headers: {
-//           Authorization: 'Bearer 30626137|IwW5qO7epi5ZOdcTvB8jNz3nREOYViiSWyqNW2vHcd899a5d',
-//           'Api-Key': 'base64:RG/ODAHrZ33diOUid/6oRzkUEu1WBVnjKoqgSqle0gA=',
-//         },
-//       }
-//     );
-
-//     // Send the response from the API to the client
-//     res.json(response.data);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: 'An error occurred while fetching the data.' });
-//   }
-// });

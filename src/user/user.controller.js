@@ -18,9 +18,7 @@ class UserController {
 
   async getUserById(req, res, next) {
     try {
-      console.log("masuk  ")
       const { uname } = req.params;
-      console.log(uname)
       const user = await userService.getUserByUname(uname);
       if (!user) {
         throw new NotFoundException(`User with ID ${uname} not found`);
@@ -50,7 +48,7 @@ class UserController {
 
   async createUser(req, res) {
     try {
-      console.log(req.body);
+      // console.log(req.body);
       const newUser = await userService.createUser(req.body);
       res.status(201).json(newUser);
     } catch (error) {

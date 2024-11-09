@@ -35,7 +35,7 @@ class XenditService {
       }
 
       const data = await response.json();
-      console.log("QR Payment Created Successfully:", data);
+      // console.log("QR Payment Created Successfully:", data);
       return data;
     } catch (error) {
       console.error("Error creating QR payment:", error);

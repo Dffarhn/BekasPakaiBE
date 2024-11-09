@@ -53,7 +53,6 @@ class UlasanProductController {
       const response = new ResponseSuccess(HttpStatus.CREATED, "Create Ulasan Product successfully", { product });
       res.status(response.statusCode).json(response);
     } catch (error) {
-      console.log(error.message);
       next(error);
     }
   }
@@ -65,7 +64,6 @@ class UlasanProductController {
       const penjualId = req.user.id;
       const ulasanData = req.body;
 
-      console.log(ulasanData);
       const ulasanDataCreate = await ulasanProductService.createUlasanProductOwner(id_ulasan_product, penjualId, ulasanData);
       if (!ulasanDataCreate) {
         return res.status(404).json({
@@ -79,7 +77,6 @@ class UlasanProductController {
 
       res.status(response.statusCode).json(response);
     } catch (error) {
-      console.log(error.message);
       next(error);
     }
   }

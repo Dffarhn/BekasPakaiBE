@@ -22,9 +22,9 @@ class UserService {
   async getUserById(id) {
     try {
       const user = await this.userRepository.findByPk(id, {
-        attributes: ["id", "name", "username", "email", "profile_picture", "banner_profile_picture","noHandphone"],
+        attributes: ["id", "name", "username", "email", "profile_picture", "banner_profile_picture", "noHandphone","bio"],
         include: [
-          { model: AuthPenjual, attributes: ["alamat","nomorRekening","namaRekening"], include: [{ model: KurirPenjual }] },
+          { model: AuthPenjual, attributes: ["alamat", "nomorRekening", "namaRekening"], include: [{ model: KurirPenjual }] },
           { model: Product, as: "products" },
         ],
       });
@@ -39,11 +39,14 @@ class UserService {
         where: {
           username: uname,
         },
-        attributes: ["id", "name", "username", "email", "profile_picture"],
-        // include: [{ model: AuthPenjual, attributes: ["alamat"], include: [{ model: KurirPenjual }] }],
+        attributes: ["id", "name", "username", "email", "profile_picture", "banner_profile_picture", "noHandphone","bio"],
+        include: [
+          { model: AuthPenjual, attributes: ["alamat", "nomorRekening", "namaRekening"], include: [{ model: KurirPenjual }] },
+          { model: Product, as: "products" },
+        ],
       });
 
-      console.log(user);
+      // console.log(user);
       return user;
     } catch (error) {
       throw new Error("Gagal mengambil data pengguna");
@@ -84,7 +87,7 @@ class UserService {
           buffer: file.buffer,
         }));
         const convertedProfilePictures = await convertImagesToWebP(processedProfilePictureFiles);
-        console.log("Converted profile picture files:", convertedProfilePictures);
+        // console.log("Converted profile picture files:", convertedProfilePictures);
 
         // Upload the new WebP profile picture
         const profilePictureUpload = await FBuploadFilesPicture(convertedProfilePictures, "userProfile");
@@ -107,7 +110,7 @@ class UserService {
           buffer: file.buffer,
         }));
         const convertedBannerPictures = await convertImagesToWebP(processedBannerFiles);
-        console.log("Converted banner picture files:", convertedBannerPictures);
+        // console.log("Converted banner picture files:", convertedBannerPictures);
 
         // Upload the new WebP banner profile picture
         const bannerPictureUpload = await FBuploadFilesPicture(convertedBannerPictures, "userBannerProfile");

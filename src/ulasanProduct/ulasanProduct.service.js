@@ -1,4 +1,5 @@
 import ForbiddenException from "../common/execeptions/ForbiddenException.js";
+import NotFoundException from "../common/execeptions/NotFoundException.js";
 import { convertImagesToWebP } from "../common/services/convertToWEBPService.js";
 import { FBdeleteFilesPicture, FBuploadFilesPicture } from "../common/services/uploadImageService.js";
 import sequelize from "../database/config.database.js";
@@ -37,11 +38,13 @@ class UlasanProductService {
         ],
       });
 
-      console.log(data);
+      if (!data) {
+        throw new NotFoundException("Ulasan not found");
+      }
 
       return data;
     } catch (error) {
-      console.log(error.message);
+      throw error;
     }
   }
 
@@ -68,7 +71,6 @@ class UlasanProductService {
     let uploadedImageUrls = [];
 
     try {
-      console.log(files);
       const product = await this.productRepository.findOne({
         where: { id: ulasanProductData.productId }, // Assuming productId is in ulasanProductData
         include: [{ model: User, as: "penjual" }], // Include the seller/user
@@ -94,7 +96,6 @@ class UlasanProductService {
 
         // Convert files to .webp format
         const convertedFiles = await convertImagesToWebP(processedFiles);
-        console.log(convertedFiles);
 
         // Upload the converted files
         uploadedImageUrls = await FBuploadFilesPicture(convertedFiles, "ulasan");
@@ -141,8 +142,6 @@ class UlasanProductService {
         },
       });
 
-      console.log(ulasan.Product.penjual.id);
-
       // Step 2: Check if the review exists and if it belongs to the specified seller
       if (!ulasan || !ulasan.Product || !ulasan.Product.penjual || ulasan.Product.penjual.id !== id_penjual) {
         throw new ForbiddenException("Review not found or does not belong to this seller.");
@@ -154,7 +153,6 @@ class UlasanProductService {
       // Step 4: Return the updated review
       return ulasan;
     } catch (error) {
-      console.log(error.message);
       throw new Error("Failed to update review.");
     }
   }

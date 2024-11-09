@@ -26,7 +26,6 @@ class AuthPenjualService {
         throw new BadRequestException("User not found.");
       }
 
-      console.log(existingUser.AuthPenjualId)
       // Loop through each courier data in `dataKurir` array
       const insertData = [];
       for (const kurir of dataKurir) {

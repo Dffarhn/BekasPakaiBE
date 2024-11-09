@@ -86,7 +86,6 @@ class ProductService {
   async createProduct(productData, files) {
     let uploadedImageUrls = [];
     try {
-      console.log("Files received:", files);
 
       if (files) {
         const isValidImage = files.every((file) => file.mimetype.startsWith("image/"));
@@ -100,7 +99,6 @@ class ProductService {
         }));
 
         const convertedFiles = await convertImagesToWebP(processedFiles);
-        console.log("Converted files:", convertedFiles);
 
         uploadedImageUrls = await Promise.all(
           convertedFiles.map(async (file) => {
@@ -123,7 +121,6 @@ class ProductService {
 
   // Update a product by id
   async updateProduct(id, productData) {
-    console.log(productData);
 
     await this.productRepository.update(productData, { where: { id } });
     return await this.productRepository.findByPk(id, {

@@ -6,7 +6,6 @@ class CategoryProductController {
 
     async getAll(req, res, next) {
         try {
-            console.log("masuk")
             const result = await categoryProductService.getCategoryProduct();
             const response = new ResponseSuccess(HttpStatus.OK, "Successfully Get All Jenis Product", { result });
             res.status(response.statusCode).json(response);

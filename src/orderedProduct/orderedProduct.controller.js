@@ -51,7 +51,6 @@ class OrderedProductController {
 
       res.status(response.statusCode).json(response);
     } catch (error) {
-      console.log(error.message);
       next(error);
     }
   }

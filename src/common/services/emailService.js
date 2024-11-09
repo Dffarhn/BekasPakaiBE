@@ -29,8 +29,6 @@ class EmailService {
   async sendConfirmationEmail(email, username, otp) {
     const emailContent = generateSendOTPContent(username, otp);
 
-    console.log(emailContent);
-
     await this.sendEmail(email, "Confirm Your Account OTP - BekasPakai", emailContent);
   }
 
@@ -48,7 +46,6 @@ class EmailService {
       };
 
       const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
-      console.log(`Email sent successfully to ${to}`);
       return response;
     } catch (error) {
       console.error(`Failed to send email to ${to}: ${error.message}`);
