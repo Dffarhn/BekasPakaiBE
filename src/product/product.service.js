@@ -89,12 +89,12 @@ class ProductService {
   async createProduct(productData, files) {
     let uploadedImageUrls = [];
     try {
-      const checkJenis = jenisProductService.getOneJenisProduct(productData.jenisId);
+      const checkJenis = await JenisProduct.findByPk(productData.jenisId)
 
       if (!checkJenis) {
         throw new BadRequestException("jenis salah");
       }
-      const checkSubCategory = subCategoryProductService.getOnecategoryProduct(productData.categoryProductId);
+      const checkSubCategory = await SubCategoryProduct.findOne(productData.categoryProductId);
       if (!checkSubCategory) {
         throw new BadRequestException("sub category salah");
       }
