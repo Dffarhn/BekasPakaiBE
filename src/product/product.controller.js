@@ -98,7 +98,7 @@ class ProductController {
     try {
       const { id } = req.params;
       const productData = req.body;
-      const updatedProduct = await ProductService.updateProduct(id, productData);
+      const updatedProduct = await ProductService.updateProduct(id, productData, req.files);
       if (!updatedProduct) {
         throw new BadRequestException("Data yang diberikan tidak valid");
       }

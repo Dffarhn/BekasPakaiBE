@@ -31,11 +31,11 @@ class ProductService {
       };
 
       const data = await this.productRepository.findAll({
-        attributes: ["id", "name", "picture", "condition", "price", "discount","isAvailable"],
+        attributes: ["id", "name", "picture", "condition", "price", "discount", "isAvailable"],
         include: [
           { model: JenisProduct, attributes: ["id", "name"] }, // Assuming the alias is 'jenisProduct'
           { model: SubCategoryProduct, attributes: ["id", "name"] },
-          { model: User, as: "penjual", attributes: ["id", "username","profile_picture"] }, // Assuming 'penjual' is the alias for the User model
+          { model: User, as: "penjual", attributes: ["id", "username", "profile_picture"] }, // Assuming 'penjual' is the alias for the User model
         ],
         where: whereClause,
         // Pagination options
@@ -60,7 +60,7 @@ class ProductService {
         {
           model: User,
           as: "penjual",
-          attributes: ["username","id","profile_picture"],
+          attributes: ["username", "id", "profile_picture"],
           include: [
             {
               model: AuthPenjual,
@@ -86,7 +86,6 @@ class ProductService {
   async createProduct(productData, files) {
     let uploadedImageUrls = [];
     try {
-
       if (files) {
         const isValidImage = files.every((file) => file.mimetype.startsWith("image/"));
         if (!isValidImage) throw new Error("Invalid file type. Only images are allowed.");
@@ -115,21 +114,97 @@ class ProductService {
       if (uploadedImageUrls.length > 0) {
         await FBdeleteFilesPicture(uploadedImageUrls.map((file) => file.key));
       }
-      throw new Error("Failed to create product");
+      throw error;
     }
   }
 
   // Update a product by id
-  async updateProduct(id, productData) {
+  // Update a product by id
+  // Update a product by id and selectively delete a specific picture
+  async updateProduct(id, productData, files) {
+    let uploadedImageUrls = [];
 
-    await this.productRepository.update(productData, { where: { id } });
-    return await this.productRepository.findByPk(id, {
-      include: [
-        { model: JenisProduct, attributes: ["id", "name"] },
-        { model: SubCategoryProduct, attributes: ["id", "name"] },
-        { model: User, as: "penjual", attributes: ["id", "username","profile_picture"] },
-      ],
-    });
+    try {
+      // Step 1: Fetch the existing product from the database
+      const existingProduct = await this.productRepository.findByPk(id, {
+        attributes: ["picture"],
+      });
+
+      if (!existingProduct) {
+        throw new Error("Product not found.");
+      }
+
+      let pictureArray = existingProduct.picture; // Existing picture array
+
+      // Step 2: Check if there are files to upload
+      if (files) {
+        const isValidImage = files.every((file) => file.mimetype.startsWith("image/"));
+        if (!isValidImage) throw new Error("Invalid file type. Only images are allowed.");
+
+        const processedFiles = files.map((file) => ({
+          originalname: `${file.originalname}_${Date.now()}`,
+          size: file.size,
+          mimetype: file.mimetype,
+          buffer: file.buffer,
+        }));
+
+        const convertedFiles = await convertImagesToWebP(processedFiles);
+
+        uploadedImageUrls = await Promise.all(
+          convertedFiles.map(async (file) => {
+            const uploaded = await FBuploadFilesPicture([file], "product");
+            return uploaded[0];
+          })
+        );
+      }
+
+      // Step 3: Handle selective deletion of images from `picture` array
+      if (Array.isArray(productData.pictureToDelete) && productData.pictureToDelete.length > 0) {
+        // Create a Set of keys to delete for efficient comparison
+        const keysToDelete = new Set(productData.pictureToDelete.map((pic) => pic.key));
+
+        // Filter out pictures to keep (those not in the keysToDelete Set)
+        pictureArray = pictureArray.filter((image) => !keysToDelete.has(image.key));
+
+        // Step 4: Delete images from storage
+        const deleteKeys = [...keysToDelete]; // Convert Set to array for batch deletion
+        if (deleteKeys.length > 0) {
+          await FBdeleteFilesPicture(deleteKeys);
+        }
+      }
+
+      // Step 4: Add newly uploaded images to the `picture` array
+      if (uploadedImageUrls.length > 0) {
+        pictureArray = pictureArray.concat(uploadedImageUrls);
+      }
+
+      // Update productData.picture with the new `pictureArray`
+      productData.picture = pictureArray;
+
+      // console.log(productData.picture); // For debugging - remove in production
+
+      // Step 5: Update the product in the database
+      await this.productRepository.update(productData, { where: { id } });
+
+      // Step 6: Retrieve and return the updated product with associations
+      return await this.productRepository.findByPk(id, {
+        include: [
+          { model: JenisProduct, attributes: ["id", "name"] },
+          { model: SubCategoryProduct, attributes: ["id", "name"] },
+          { model: User, as: "penjual", attributes: ["id", "username", "profile_picture"] },
+        ],
+      });
+    } catch (error) {
+      console.error("Failed to update product:", error.message);
+
+      // Cleanup uploaded images if an error occurs during processing
+      if (uploadedImageUrls.length > 0) {
+        const keysToCleanup = uploadedImageUrls.map((file) => file.key);
+        await FBdeleteFilesPicture(keysToCleanup);
+      }
+
+      throw error;
+    }
   }
 
   // Delete a product by id
