@@ -24,8 +24,8 @@ Product.init(
     },
 
     condition: {
-      type: DataTypes.ENUM("Baru", "Bekas"),
-      allowNull: false,
+      type: DataTypes.ENUM("Baru dan Tersegel", "Baru Dibuka","Sekali Pakai", "Jarang Dipakai","Pemakaian Rutin","Sesuai Foto"),
+      allowNull: true,
     },
 
     garansi: {
@@ -41,6 +41,10 @@ Product.init(
     price: {
       type: DataTypes.FLOAT,
       allowNull: false,
+    },
+    minimumPrice: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
     },
 
     discount: {
