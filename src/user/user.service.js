@@ -22,7 +22,7 @@ class UserService {
   async getUserById(id) {
     try {
       const user = await this.userRepository.findByPk(id, {
-        attributes: ["id", "name", "username", "email", "profile_picture", "banner_profile_picture", "noHandphone","bio","createdAt"],
+        attributes: ["id", "name", "username", "email", "profile_picture", "banner_profile_picture", "noHandphone","bio","createdAt","jenisKelamin","tanggalLahir"],
         include: [
           { model: AuthPenjual, attributes: ["alamat", "nomorRekening", "namaRekening"], include: [{ model: KurirPenjual }] },
           { model: Product, as: "products" },
@@ -39,7 +39,7 @@ class UserService {
         where: {
           username: uname,
         },
-        attributes: ["id", "name", "username", "email", "profile_picture", "banner_profile_picture", "noHandphone","bio","createdAt"],
+        attributes: ["id", "name", "username", "email", "profile_picture", "banner_profile_picture", "noHandphone","bio","createdAt","jenisKelamin","tanggalLahir"],
         include: [
           { model: AuthPenjual, attributes: ["alamat", "nomorRekening", "namaRekening"], include: [{ model: KurirPenjual }] },
           { model: Product, as: "products" },
