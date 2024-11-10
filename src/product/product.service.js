@@ -94,7 +94,7 @@ class ProductService {
       if (!checkJenis) {
         throw new BadRequestException("jenis salah");
       }
-      const checkSubCategory = await SubCategoryProduct.findOne(productData.categoryProductId);
+      const checkSubCategory = await SubCategoryProduct.findByPk(productData.categoryProductId);
       if (!checkSubCategory) {
         throw new BadRequestException("sub category salah");
       }
