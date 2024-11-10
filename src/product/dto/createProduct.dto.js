@@ -10,7 +10,7 @@ export const createProductValidator = [
   body('condition')
     .trim()
     .notEmpty().withMessage('Condition is required and cannot be just whitespace')
-    .isIn(['Bekas', 'Baru']).withMessage('Condition must be either Bekas or Baru'),
+    .isIn(["Baru dan Tersegel", "Baru Dibuka","Sekali Pakai", "Jarang Dipakai","Pemakaian Rutin","Sesuai Foto"]).withMessage('Condition must be either Bekas or Baru'),
   
   body('garansi')
     .isBoolean().withMessage('Garansi must be a boolean'),
@@ -39,3 +39,6 @@ export const createProductValidator = [
   body('categoryProductId')
     .isUUID(4).withMessage('CategoryProductId must be a valid UUID v4'),
 ];
+
+
+      
