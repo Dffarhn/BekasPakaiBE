@@ -9,6 +9,7 @@ import CategoryProduct from "../categoryProducts/categoryProduct.entity.js";
 import { convertImagesToWebP } from "../common/services/convertToWEBPService.js";
 import AuthPenjual from "../authPenjual/authPenjual.entity.js";
 import KurirPenjual from "../kurirPenjual/kurirPenjual.entity.js";
+import BadRequestException from "../common/execeptions/BadRequestExecption.js";
 
 class ProductService {
   constructor() {
@@ -88,7 +89,7 @@ class ProductService {
     try {
       if (files) {
         const isValidImage = files.every((file) => file.mimetype.startsWith("image/"));
-        if (!isValidImage) throw new Error("Invalid file type. Only images are allowed.");
+        if (!isValidImage) throw new BadRequestException("Invalid file type. Only images are allowed.");
 
         const processedFiles = files.map((file) => ({
           originalname: `${file.originalname}_${Date.now()}`,

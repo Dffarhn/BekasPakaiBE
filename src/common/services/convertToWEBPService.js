@@ -1,4 +1,5 @@
 import sharp from "sharp";
+import BadRequestException from "../execeptions/BadRequestExecption";
 
 /**
  * Converts images to .webp format in parallel.
@@ -25,8 +26,7 @@ export async function convertImagesToWebP(files, quality = 80) {
           mimetype: "image/webp",
         };
       } catch (error) {
-        console.error(`Failed to convert ${file.originalname || 'unknown file'}:`, error);
-        throw new Error(`Error converting image ${file.originalname || 'unknown file'}`);
+        throw new BadRequestException(`Error converting image ${file.originalname || 'unknown file'}`);
       }
     })
   );
