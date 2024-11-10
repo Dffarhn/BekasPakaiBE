@@ -10,6 +10,8 @@ import { convertImagesToWebP } from "../common/services/convertToWEBPService.js"
 import AuthPenjual from "../authPenjual/authPenjual.entity.js";
 import KurirPenjual from "../kurirPenjual/kurirPenjual.entity.js";
 import BadRequestException from "../common/execeptions/BadRequestExecption.js";
+import jenisProductService from "../jenisProducts/jenisProduct.service.js";
+import subCategoryProductService from "../subCategoryProduct/subCategoryProduct.service.js";
 
 class ProductService {
   constructor() {
@@ -87,6 +89,15 @@ class ProductService {
   async createProduct(productData, files) {
     let uploadedImageUrls = [];
     try {
+      const checkJenis = jenisProductService.getOneJenisProduct(productData.jenisId);
+
+      if (!checkJenis) {
+        throw new BadRequestException("jenis salah");
+      }
+      const checkSubCategory = subCategoryProductService.getOnecategoryProduct(productData.categoryProductId);
+      if (!checkSubCategory) {
+        throw new BadRequestException("sub category salah");
+      }
       if (files) {
         const isValidImage = files.every((file) => file.mimetype.startsWith("image/"));
         if (!isValidImage) throw new BadRequestException("Invalid file type. Only images are allowed.");
