@@ -1,5 +1,5 @@
 import sharp from "sharp";
-import BadRequestException from "../execeptions/BadRequestExecption";
+import BadRequestException from "../execeptions/BadRequestExecption.js";
 
 /**
  * Converts images to .webp format in parallel.
