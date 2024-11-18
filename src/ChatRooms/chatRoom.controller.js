@@ -5,7 +5,9 @@ import chatRoomService from "./chatRoom.service.js";
 class ChatRoomController {
   async getAllChatRoom(req, res, next) {
     try {
+
       const userId = req.user.id;
+      console.log(userId)
 
       const data = chatRoomService.getAllRoomUser(userId);
 
