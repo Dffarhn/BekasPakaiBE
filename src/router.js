@@ -40,7 +40,7 @@ router.use("/upgrade-customer", AuthPenjualRoute);
 
 router.use("/kurir",KurirPenjualRoute)
 
-router.use("/chat-rooms", chatRoom);
+router.use("/chatrooms", chatRoom);
 
 
 router.use("/xendit", XenditRoute)

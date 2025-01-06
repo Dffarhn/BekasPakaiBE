@@ -9,7 +9,7 @@ class ChatRoomController {
       const userId = req.user.id;
       console.log(userId)
 
-      const data = chatRoomService.getAllRoomUser(userId);
+      const data = await chatRoomService.getAllRoomUser(userId);
 
       const response = new ResponseSuccess(HttpStatus.OK, "Successfully Get All Room User", { data });
       res.status(response.statusCode).json(response);
